@@ -52,6 +52,22 @@ sub is_punct {
     return shift->isa(qw/T_BEGIN T_END T_COLON T_COMMA T_WHITESPACE/);
 }
 
+sub is_address {
+    return shift->isa('T_ADDRESS');
+}
+
+sub is_command {
+    return shift->isa('T_COMMAND');
+}
+
+sub is_file {
+    return shift->isa('T_FILE');
+}
+
+sub value {
+    return shift->{'value'};
+}
+
 sub tokenize_for_types {
     my ($class, $buf, @types) = @_;
     my @tokens;

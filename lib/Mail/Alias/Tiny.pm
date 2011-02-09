@@ -6,7 +6,7 @@ use warnings;
 use Mail::Alias::Tiny::Parser;
 
 sub read {
-    my ($class, $fh, $local_part, $destinations) = @_;
+    my ($class, $fh) = @_;
 
     while (my $line = readline($fh)) {
         $line =~ s/^\s+//;
@@ -15,12 +15,10 @@ sub read {
         next unless $line;
         next if $line =~ /^(#|$)/;
 
-        ($local_part, $destinations) = Mail::Alias::Tiny::Parser->parse($line);
-
-        return 1;
+        return Mail::Alias::Tiny::Parser->parse($line);
     }
 
-    return 0;
+    return;
 }
 
 sub from_file {
@@ -29,7 +27,7 @@ sub from_file {
 
     open(my $fh, '<', $file) or die("Unable to open mail aliases file $file for reading");
 
-    while ($class->read($fh, my ($local_part, $destinations))) {
+    while (my ($local_part, $destinations) = $class->read($fh)) {
         $ret{$local_part} = $destinations;
     }
 
