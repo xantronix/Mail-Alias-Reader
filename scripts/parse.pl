@@ -3,12 +3,12 @@
 use strict;
 use warnings;
 
-use Mail::Alias::Parse;
+use Mail::Alias::Tiny;
 
-my $aliases = Mail::Alias::Parse->read_file($ARGV[0]);
+my $aliases = Mail::Alias::Tiny->from_file($ARGV[0]);
 
-foreach my $name (keys %$aliases) {
-    my @destinations = @{$aliases->{$name}};
+foreach my $local_part (sort keys %{$aliases}) {
+    my $destinations = $aliases->{$local_part};
 
-    printf("%s: %s\n", $name, join(', ', map { $_->{'value'} } @destinations));
+    printf("%s: %s\n", $local_part, join(', ', map { $_->{'value'} } @{$destinations}));
 }
