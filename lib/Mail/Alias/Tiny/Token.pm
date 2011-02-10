@@ -9,18 +9,16 @@ my @TOKEN_TYPES = (
     [ 'T_COMMENT'       => qr/#.*$/ ],
     [ 'T_STRING'        => qr/("(?:\\.|[^"\\]+)*")/ ],
     [ 'T_COMMA'         => qr/,/ ],
-    [ 'T_INCLUDE'       => qr/:include:([^\:\s,]+)/ ],
-    [ 'T_FAIL'          => qr/:fail:([^\:\s,]+)/ ],
+    [ 'T_DIRECTIVE'     => qr/:([^\:\s]+):([^\:\s,]+)/ ],
     [ 'T_COMMAND'       => qr/\|([\S]+)/ ],
     [ 'T_ADDRESS'       => qr/([a-z0-9_\-@\.*]+)/i ],
     [ 'T_COLON'         => qr/\:/ ],
     [ 'T_FILE'          => qr/([\S]+)/ ],
-    [ 'T_WHITESPACE'    => qr/\s+/ ]
+    [ 'T_WHITESPACE'    => qr/\s+/ ],
 );
 
 my @TOKEN_STRING_TYPES = (
-    [ 'T_INCLUDE'       => qr/:include:(.*)/ ],
-    [ 'T_FAIL'          => qr/:fail:(.*)/ ],
+    [ 'T_DIRECTIVE'     => qr/:([^\:]+):(.*)/ ],
     [ 'T_COMMAND'       => qr/\|(.*)/ ],
     [ 'T_ADDRESS'       => qr/([^\/]+)/ ],
     [ 'T_FILE'          => qr/(.*)/ ]
@@ -45,7 +43,7 @@ sub isa {
 }
 
 sub is_value {
-    return shift->isa(qw/T_INCLUDE T_FAIL T_COMMAND T_ADDRESS T_FILE/);
+    return shift->isa(qw/T_DIRECTIVE T_COMMAND T_ADDRESS T_FILE/);
 }
 
 sub is_punct {
@@ -64,6 +62,15 @@ sub is_file {
     return shift->isa('T_FILE');
 }
 
+sub to_string {
+    my ($self) = @_;
+
+    return ":$self->{'name'}:$self->{'value'}" if $self->{'type'} eq 'T_DIRECTIVE';
+    return "|$self->{'value'}"                 if $self->{'type'} eq 'T_COMMAND';
+
+    return $self->{'value'};
+}
+
 sub tokenize_for_types {
     my ($class, $buf, @types) = @_;
     my @tokens;
@@ -72,10 +79,17 @@ sub tokenize_for_types {
         foreach my $type (@types) {
             next unless $buf =~ s/^$type->[1]//;
 
-            push @tokens, bless {
-                'type'  => $type->[0],
-                'value' => $1
+            my $token = bless {
+                'type' => $type->[0],
             }, $class;
+
+            if ($type->[0] eq 'T_DIRECTIVE') {
+                @{$token}{qw(name value)} = ($1, $2);
+            } else {
+                $token->{'value'} = $1;
+            }
+
+            push @tokens, $token;
 
             next match;
         }

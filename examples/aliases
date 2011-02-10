@@ -10,7 +10,7 @@
 #
 
 # Basic system aliases -- these MUST be present.
-MAILER-DAEMON:	postmaster
+MAILER-DAEMON:  postmaster
 postmaster:	root
 site_blackhole: /dev/null
 

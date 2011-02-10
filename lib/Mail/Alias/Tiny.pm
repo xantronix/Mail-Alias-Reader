@@ -3,7 +3,29 @@ package Mail::Alias::Tiny;
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny::Parser;
+use Mail::Alias::Tiny::Parser ();
+
+=head1 NAME
+
+Mail::Alias::Tiny
+
+=head1 DESCRIPTION
+
+A small package for reading aliases(5) declarations
+
+=head1 SYNOPSIS
+
+    use Mail::Alias::Tiny ();
+
+    open(my $fh, '<', '/etc/aliases') or die("Cannot open /etc/aliases: $!");
+
+    while (my ($local_part, $destinations) = Mail::Alias::Tiny->read($fh)) {
+
+    }
+
+=head1 ABOUT
+
+=cut
 
 sub read {
     my ($class, $fh) = @_;

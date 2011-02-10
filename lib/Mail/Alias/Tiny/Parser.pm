@@ -29,7 +29,9 @@ sub parse {
         } elsif ($token->isa('T_WHITESPACE')) {
             confess('Unexpected whitespace') unless $last_token->is_punct;
         } elsif ($token->is_value) {
-            confess("Unexpected literal value '$token->{'value'}") unless $last_token->is_punct;
+            use Data::Dumper;
+            printf("Last token: %s\n\nCurrent token: %s\n\n", Dumper($last_token), Dumper($token)) unless $last_token->is_punct;
+            confess("Unexpected literal value '$token->{'value'}'") unless $last_token->is_punct;
 
             push @destinations, $token;
         } elsif ($token->isa('T_END')) {
