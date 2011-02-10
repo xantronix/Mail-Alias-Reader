@@ -7,7 +7,7 @@ use Carp;
 
 my @TOKEN_TYPES = (
     [ 'T_COMMENT'       => qr/#.*$/ ],
-    [ 'T_STRING'        => qr/"((?:[^"\\]++|\\.)*+)"/ ],
+    [ 'T_STRING'        => qr/("(?:\\.|[^"\\]+)*")/ ],
     [ 'T_COMMA'         => qr/,/ ],
     [ 'T_INCLUDE'       => qr/:include:([^\:\s,]+)/ ],
     [ 'T_FAIL'          => qr/:fail:([^\:\s,]+)/ ],
@@ -64,10 +64,6 @@ sub is_file {
     return shift->isa('T_FILE');
 }
 
-sub value {
-    return shift->{'value'};
-}
-
 sub tokenize_for_types {
     my ($class, $buf, @types) = @_;
     my @tokens;
@@ -105,6 +101,8 @@ sub tokenize {
         # delimited string out for a more specific type.
         #
         if ($token->{'type'} eq 'T_STRING') {
+            $token->{'value'} =~ s/^"(.*)"$/$1/;
+
             my ($new_token) = $class->tokenize_for_types($token->{'value'}, @TOKEN_STRING_TYPES);
 
             @{$token}{qw/type value/} = @{$new_token}{qw/type value/};
