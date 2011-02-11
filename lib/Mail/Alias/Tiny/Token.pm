@@ -18,7 +18,7 @@ my @TOKEN_TYPES = (
 );
 
 my @TOKEN_STRING_TYPES = (
-    [ 'T_DIRECTIVE'     => qr/:([^\:]+):(.*)/ ],
+    [ 'T_DIRECTIVE'     => qr/:([^\:\s]+):\s*(.*)/ ],
     [ 'T_COMMAND'       => qr/\|(.*)/ ],
     [ 'T_ADDRESS'       => qr/([^\/]+)/ ],
     [ 'T_FILE'          => qr/(.*)/ ]
@@ -119,7 +119,7 @@ sub tokenize {
 
             my ($new_token) = $class->tokenize_for_types($token->{'value'}, @TOKEN_STRING_TYPES);
 
-            @{$token}{qw/type value/} = @{$new_token}{qw/type value/};
+            @{$token}{keys %{$new_token}} = values %{$new_token};
         }
     }
 
