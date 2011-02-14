@@ -64,11 +64,30 @@ sub is_file {
 
 sub to_string {
     my ($self) = @_;
+    my $ret;
 
-    return ":$self->{'name'}:$self->{'value'}" if $self->{'type'} eq 'T_DIRECTIVE';
-    return "|$self->{'value'}"                 if $self->{'type'} eq 'T_COMMAND';
+    if (defined $self->{'string'}) {
+        #
+        # If this token contains its original string representation, then
+        # use that directly.  That way, there's no guesswork involved in how to
+        # properly escape the data for recording to a file.
+        #
+        $ret = $self->{'string'};
+    } elsif ($self->{'type'} eq 'T_DIRECTIVE') {
+        $ret = ":$self->{'name'}:$self->{'value'}";
+    } elsif ($self->{'type'} eq 'T_COMMAND') {
+        $ret = "|$self->{'value'}";
+    } else {
+        $ret = $self->{'value'};
+    }
 
-    return $self->{'value'};
+    #
+    # If the data to be returned contains spaces, then wrap it with double quotes
+    # before returning it to the user.
+    #
+    $ret =~ s/^(.*)$/"$1"/ if $ret =~ /\s/;
+
+    return $ret;
 }
 
 sub tokenize_for_types {
@@ -103,6 +122,15 @@ sub tokenize_for_types {
 sub tokenize {
     my ($class, $buf) = @_;
 
+    my @STRING_ESCAPE_SEQUENCES = (
+        [ qr/\\(0\d*)/        => sub { pack 'W', oct($1) } ],
+        [ qr/\\(0x[0-9a-f]+)/ => sub { pack 'H', hex($1) } ],
+        [ qr/\\r/             => sub { "\r" } ],
+        [ qr/\\n/             => sub { "\n" } ],
+        [ qr/\\t/             => sub { "\t" } ],
+        [ qr/\\(.)/           => sub { $1 } ]
+    );
+
     #
     # Perform first stage tokenization on the input.
     #
@@ -116,7 +144,22 @@ sub tokenize {
         #
         if ($token->{'type'} eq 'T_STRING') {
             $token->{'value'} =~ s/^"(.*)"$/$1/;
+            $token->{'string'} = $token->{'value'};
 
+            #
+            # Parse for any escape sequences that may be present.
+            #
+            foreach my $sequence (@STRING_ESCAPE_SEQUENCES) {
+                my ($pattern, $subst) = @{$sequence};
+
+                $token->{'value'} =~ s/$pattern/$subst->()/eg;
+            }
+
+            #
+            # Create a new token from the second pass parsing step for the string
+            # contents, copying the data directly into the existing token (so as to
+            # not lose the previous reference).
+            #
             my ($new_token) = $class->tokenize_for_types($token->{'value'}, @TOKEN_STRING_TYPES);
 
             @{$token}{keys %{$new_token}} = values %{$new_token};
