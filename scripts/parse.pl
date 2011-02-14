@@ -5,10 +5,11 @@ use warnings;
 
 use Mail::Alias::Tiny;
 
-my $aliases = Mail::Alias::Tiny->from_file($ARGV[0]);
+my $reader = Mail::Alias::Tiny->open(
+    'file' => $ARGV[0],
+    'mode' => 'aliases'
+);
 
-foreach my $local_part (sort keys %{$aliases}) {
-    my $destinations = $aliases->{$local_part};
-
-    printf("%s: %s\n", $local_part, join(', ', map { $_->to_string } @{$destinations}));
+while (my ($name, $destinations) = $reader->read) {
+    printf("%s: %s\n", $name, join(', ', map { $_->to_string } @{$destinations}));
 }

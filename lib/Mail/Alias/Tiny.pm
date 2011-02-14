@@ -5,57 +5,48 @@ use warnings;
 
 use Mail::Alias::Tiny::Parser ();
 
-=head1 NAME
+use Carp;
 
-Mail::Alias::Tiny
+sub open {
+    my ($class, %opts) = @_;
+    $opts{'mode'} ||= 'aliases';
 
-=head1 DESCRIPTION
+    confess('Unknown parsing mode') unless $opts{'mode'} =~ /^aliases|forward$/;
 
-A small package for reading aliases(5) declarations
+    my $fh;
 
-=head1 SYNOPSIS
-
-    use Mail::Alias::Tiny ();
-
-    open(my $fh, '<', '/etc/aliases') or die("Cannot open /etc/aliases: $!");
-
-    while (my ($local_part, $destinations) = Mail::Alias::Tiny->read($fh)) {
-
+    if (defined $opts{'file'}) {
+        open($fh, '<', $opts{'file'}) or confess("Unable to open aliases file $opts{'file'}: $!");
+    } elsif (defined $opts{'handle'}) {
+        $fh = $opts{'handle'};
+    } else {
+        confess('No file or file handle specified');
     }
 
-=head1 ABOUT
-
-=cut
+    return bless {
+        'mode'   => $opts{'mode'},
+        'handle' => $fh
+    }, $class;
+}
 
 sub read {
-    my ($class, $fh) = @_;
+    my ($self) = @_;
 
-    while (my $line = readline($fh)) {
+    while (my $line = readline($self->{'handle'})) {
         $line =~ s/^\s+//;
         $line =~ s/\s+$//;
 
         next unless $line;
         next if $line =~ /^(#|$)/;
 
-        return Mail::Alias::Tiny::Parser->parse($line);
+        return Mail::Alias::Tiny::Parser->parse($line, $self->{'mode'});
     }
 
     return;
 }
 
-sub from_file {
-    my ($class, $file) = @_;
-    my %ret;
-
-    open(my $fh, '<', $file) or die("Unable to open mail aliases file $file for reading");
-
-    while (my ($local_part, $destinations) = $class->read($fh)) {
-        $ret{$local_part} = $destinations;
-    }
-
-    close($fh);
-
-    return \%ret;
+sub close {
+    close shift->{'handle'};
 }
 
 1;
