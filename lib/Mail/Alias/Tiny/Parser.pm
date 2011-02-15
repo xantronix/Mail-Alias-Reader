@@ -8,8 +8,8 @@ use Mail::Alias::Tiny::Token;
 use Carp;
 
 sub parse {
-    my ($class, $alias, $mode) = @_;
-    my @tokens = Mail::Alias::Tiny::Token->tokenize($alias);
+    my ($class, $statement, $mode) = @_;
+    my @tokens = Mail::Alias::Tiny::Token->tokenize($statement);
 
     my $last_token = Mail::Alias::Tiny::Token->new('T_BEGIN');
     my ($name, @destinations);
@@ -19,7 +19,9 @@ sub parse {
 
         if ($last_token->isa('T_BEGIN')) {
             confess("Expected address as name of alias, found $token->{'type'}") unless $token->isa('T_ADDRESS');
-        } elsif ($token->isa('T_COMMA')) {
+        }
+        
+        if ($token->isa('T_COMMA')) {
             confess('Unexpected comma') unless $last_token->is_value;
         } elsif ($token->isa('T_COLON')) {
             confess('Unexpected colon in .forward statement') if $mode eq 'forward';
@@ -44,7 +46,9 @@ sub parse {
 
     confess('Declaration has no destinations') unless @destinations;
 
-    if ($mode eq 'forward') {
+    if ($mode eq 'aliases') {
+        confess('No alias name specified') unless defined $name;
+    } elsif ($mode eq 'forward') {
         return \@destinations;
     }
 
