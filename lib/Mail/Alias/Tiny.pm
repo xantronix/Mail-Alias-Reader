@@ -7,6 +7,18 @@ use Mail::Alias::Tiny::Parser ();
 
 use Carp;
 
+BEGIN {
+    use Exporter ();
+    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+
+    $VERSION     = '0.01';
+    @ISA         = qw(Exporter);
+
+    @EXPORT      = ();
+    @EXPORT_OK   = ();
+    %EXPORT_TAGS = ();
+}
+
 sub open {
     my ($class, %opts) = @_;
     $opts{'mode'} ||= 'aliases';
