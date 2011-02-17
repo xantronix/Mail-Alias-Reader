@@ -5,6 +5,20 @@ use warnings;
 
 use Carp;
 
+=head1 NAME
+
+Mail::Alias::Tiny::Token
+
+=head1 DESCRIPTION
+
+Mail::Alias::Tiny::Token is not only the class represents an aliases(5) parser
+token, but also itself is returned by L<Mail::Alias::Tiny> as a representation
+of a mail alias destination.  For the purposes of this documentation, only the
+public-facing methods which facilitate the usage of instances of this class
+shall be discussed.
+
+=cut
+
 my @TOKEN_TYPES = (
     [ 'T_COMMENT'       => qr/#.*$/ ],
     [ 'T_STRING'        => qr/("(?:\\.|[^"\\]+)*")/ ],
@@ -50,18 +64,57 @@ sub is_punct {
     return shift->isa(qw/T_BEGIN T_END T_COLON T_COMMA T_WHITESPACE/);
 }
 
+=head1 DETERMINING MAIL DESTINATION TYPE
+
+A variety of methods are provided to allow one to infer the type of a mail
+alias (parser token) returned.
+
+=over
+
+=item $destination->is_address()
+
+Returns true if the mail destination described by the current token is a local
+part or fully qualified mail address.
+
+=cut
 sub is_address {
     return shift->isa('T_ADDRESS');
 }
 
+=item $destination->is_command()
+
+Returns true if the mail destination described by the current token is a
+command to which mail messages should be piped.
+
+=cut
 sub is_command {
     return shift->isa('T_COMMAND');
 }
 
+=item $destination->is_file()
+
+Returns true if the mail destination described by the current token is a file
+to which mail messages should be appended.
+
+=back
+
+=cut
 sub is_file {
     return shift->isa('T_FILE');
 }
 
+=head1 CONVERTING THE MAIL DESTINATION TO A STRING
+
+=over
+
+=item $destination->to_string()
+
+Returns a string representation of the mail alias destination that was
+originally parsed to yield the current token object.
+
+=back
+
+=cut
 sub to_string {
     my ($self) = @_;
     my $ret;
@@ -174,3 +227,9 @@ sub tokenize {
 }
 
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Erin Schoenhals E<lt>erin@cpanel.netE<gt>
