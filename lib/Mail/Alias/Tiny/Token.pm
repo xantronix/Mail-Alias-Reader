@@ -20,7 +20,7 @@ shall be discussed.
 =cut
 
 my @TOKEN_TYPES = (
-    [ 'T_COMMENT'       => qr/#.*$/ ],
+    [ 'T_COMMENT'       => qr/#\s*(.*)$/ ],
     [ 'T_STRING'        => qr/("(?:\\.|[^"\\]+)*")/ ],
     [ 'T_COMMA'         => qr/,/ ],
     [ 'T_DIRECTIVE'     => qr/:([^\:\s]+):([^\:\s,]+)/ ],
@@ -61,7 +61,7 @@ sub is_value {
 }
 
 sub is_punct {
-    return shift->isa(qw/T_BEGIN T_END T_COLON T_COMMA T_WHITESPACE/);
+    return shift->isa(qw/T_BEGIN T_END T_COLON T_COMMA/);
 }
 
 =head1 DETERMINING MAIL DESTINATION TYPE
@@ -79,6 +79,16 @@ part or fully qualified mail address.
 =cut
 sub is_address {
     return shift->isa('T_ADDRESS');
+}
+
+=item $destination->is_directive()
+
+Returns true if the mail destination described by the current token is a
+mail transfer agent directive.
+
+=cut
+sub is_directive {
+    return shift->isa('T_DIRECTIVE');
 }
 
 =item $destination->is_command()
@@ -107,6 +117,16 @@ sub is_file {
 
 =over
 
+=item $destination->to_value()
+
+Returns a parsed and unescaped logical representation of the mail alias
+destination that was originally parsed to yield the current token object.
+
+=cut
+sub to_value {
+    return shift->{'value'};
+}
+
 =item $destination->to_string()
 
 Returns a string representation of the mail alias destination that was
@@ -119,6 +139,21 @@ sub to_string {
     my ($self) = @_;
     my $ret;
 
+    #
+    # Since not every token type has a "value", per se, lazy evaluation is
+    # necessary to prevent a Perl runtime warning when evaluating the 'T_COMMENT'
+    # part of this hash when dealing with tokens that are anything other than a
+    # comment.
+    #
+    my %VALUES = (
+        'T_COMMENT'    => sub { "# $self->{'value'}" },
+        'T_COMMA'      => sub { ',' },
+        'T_COLON'      => sub { ':' },
+        'T_WHITESPACE' => sub { ' ' }
+    );
+
+    return $VALUES{$self->{'type'}}->() if exists $VALUES{$self->{'type'}};
+
     if (defined $self->{'string'}) {
         #
         # If this token contains its original string representation, then
@@ -126,9 +161,9 @@ sub to_string {
         # properly escape the data for recording to a file.
         #
         $ret = $self->{'string'};
-    } elsif ($self->{'type'} eq 'T_DIRECTIVE') {
+    } elsif ($self->isa('T_DIRECTIVE')) {
         $ret = ":$self->{'name'}:$self->{'value'}";
-    } elsif ($self->{'type'} eq 'T_COMMAND') {
+    } elsif ($self->isa('T_COMMAND')) {
         $ret = "|$self->{'value'}";
     } else {
         $ret = $self->{'value'};
@@ -169,7 +204,7 @@ sub tokenize_for_types {
         confess("Syntax error: '$buf'");
     }
 
-    return @tokens;
+    return \@tokens;
 }
 
 sub tokenize {
@@ -187,15 +222,15 @@ sub tokenize {
     #
     # Perform first stage tokenization on the input.
     #
-    my @tokens = $class->tokenize_for_types($buf, @TOKEN_TYPES);
+    my $tokens = $class->tokenize_for_types($buf, @TOKEN_TYPES);
 
-    foreach my $token (@tokens) {
+    foreach my $token (@{$tokens}) {
         #
         # Perform second stage tokenization on any T_STRING tokens found.  As the aliases(5)
         # format lacks a string literal type, a second pass is required to parse the quote
         # delimited string out for a more specific type.
         #
-        if ($token->{'type'} eq 'T_STRING') {
+        if ($token->isa('T_STRING')) {
             $token->{'value'} =~ s/^"(.*)"$/$1/;
             $token->{'string'} = $token->{'value'};
 
@@ -213,17 +248,17 @@ sub tokenize {
             # contents, copying the data directly into the existing token (so as to
             # not lose the previous reference).
             #
-            my ($new_token) = $class->tokenize_for_types($token->{'value'}, @TOKEN_STRING_TYPES);
+            my $new_token = $class->tokenize_for_types($token->{'value'}, @TOKEN_STRING_TYPES)->[0];
 
             @{$token}{keys %{$new_token}} = values %{$new_token};
         }
     }
 
-    return (
+    return [
         $class->new('T_BEGIN'),
-        @tokens,
+        @{$tokens},
         $class->new('T_END')
-    );
+    ];
 }
 
 1;

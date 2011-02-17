@@ -17,7 +17,7 @@ sub _parse_forward_statement {
         next if $token->isa(qw/T_BEGIN T_COMMENT T_WHITESPACE/);
 
         if ($token->is_value) {
-            confess('Unexpected value') unless $last_token->is_punct;
+            confess('Unexpected value') if $last_token->is_value;
 
             push @destinations, $token;
         } elsif ($token->isa('T_COMMA')) {
@@ -74,10 +74,10 @@ sub _parse_aliases_statement {
 
 sub parse {
     my ($class, $statement, $mode) = @_;
-    my @tokens = Mail::Alias::Tiny::Token->tokenize($statement);
+    my $tokens = Mail::Alias::Tiny::Token->tokenize($statement);
 
-    return _parse_forward_statement(\@tokens) if $mode eq 'forward';
-    return _parse_aliases_statement(\@tokens) if $mode eq 'aliases';
+    return _parse_forward_statement($tokens) if $mode eq 'forward';
+    return _parse_aliases_statement($tokens) if $mode eq 'aliases';
 
     confess("Invalid parsing mode $mode specified");
 }
