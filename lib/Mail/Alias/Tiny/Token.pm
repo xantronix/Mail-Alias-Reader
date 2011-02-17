@@ -38,6 +38,14 @@ my @TOKEN_STRING_TYPES = (
     [ 'T_FILE'          => qr/(.*)/ ]
 );
 
+#
+# Mail::Alias::Tiny::Token->new($type)
+#
+# Create a new mail alias parser token of the given type.  This method isn't
+# actually meant to be called publically; rather, it is simply a shortcut to
+# create symbolic parser tokens that contain no data, but refer to a piece of
+# punctuation, or similar.
+#
 sub new {
     my ($class, $type) = @_;
 
@@ -46,6 +54,12 @@ sub new {
     }, $class;
 }
 
+#
+# $token->isa(@types)
+#
+# Return true if the current token is of any of the types passed as an
+# argument.
+#
 sub isa {
     my ($self, @types) = @_;
 
@@ -56,12 +70,25 @@ sub isa {
     return 0;
 }
 
-sub is_value {
-    return shift->isa(qw/T_DIRECTIVE T_COMMAND T_ADDRESS T_FILE/);
-}
-
+#
+# $token->is_punct()
+#
+# Returns true if the current token represents a piece of punctuation, or
+# something that separates values, clauses, or declarations from one another.
+#
 sub is_punct {
     return shift->isa(qw/T_BEGIN T_END T_COLON T_COMMA/);
+}
+
+#
+# $token->is_value()
+#
+# Returns true if the current token represents a meaningful value recorded in
+# text, such as a mail transfer agent directive, a command to pass message to,
+# a local or remote mailing address, or a file to append messages to.
+#
+sub is_value {
+    return shift->isa(qw/T_DIRECTIVE T_COMMAND T_ADDRESS T_FILE/);
 }
 
 =head1 DETERMINING MAIL DESTINATION TYPE
@@ -178,6 +205,22 @@ sub to_string {
     return $ret;
 }
 
+#
+# Mail::Alias::Tiny::Token->tokenize_for_types($buf, @types)
+#
+# Transform the given text buffer, $buf, into a series of tokens, based on the
+# rules passed in @types (defined near the top of this file).  Returns an ARRAY
+# of tokens that were matched based on the rules in @types versus the input
+# buffer.
+#
+# As the token types are associated with their parsing rules, and are given in
+# an ordered manner, proper precedence can be followed and ambiguity in lexing
+# can be overcome.
+#
+# This method does not provide the main tokenizing interface; rather, it only
+# facilitates for the easy access of a single pass of tokenizing, and is called
+# by the Mail::Alias::Tiny::Token->tokenize() method.
+#
 sub tokenize_for_types {
     my ($class, $buf, @types) = @_;
     my @tokens;
@@ -207,12 +250,31 @@ sub tokenize_for_types {
     return \@tokens;
 }
 
+#
+# Mail::Alias::Tiny::Token->tokenize($buf)
+#
+# Returns an ARRAY of tokens parsed from the given text buffer.
+#
+# This method tokenizes in two stages; first, it performs a high-level sweep of
+# any statements not inside double quotes, though while grabbing double-quoted
+# statements and holding onto them for a later second pass.  During this second
+# tokenization pass, performed for each double-quoted statement found and in the
+# order of first-stage tokenization, statements containing spaces are parsed.
+#
+# Since this method is intended to be used on a single line of input, a T_BEGIN
+# and T_END token comes as the first and the last token returned, respectively.
+#
 sub tokenize {
     my ($class, $buf) = @_;
 
+    #
+    # When parsing token data contained within double quotes, the following
+    # escape sequence patterns and substitutions are iterated over for each
+    # double quoted expression, performing unescaping where necessary.
+    #
     my @STRING_ESCAPE_SEQUENCES = (
         [ qr/\\(0\d*)/        => sub { pack 'W', oct($1) } ],
-        [ qr/\\(0x[0-9a-f]+)/ => sub { pack 'H', hex($1) } ],
+        [ qr/\\(x[0-9a-f]+)/  => sub { pack 'W', hex("0$1") } ],
         [ qr/\\r/             => sub { "\r" } ],
         [ qr/\\n/             => sub { "\n" } ],
         [ qr/\\t/             => sub { "\t" } ],
@@ -231,7 +293,7 @@ sub tokenize {
         # delimited string out for a more specific type.
         #
         if ($token->isa('T_STRING')) {
-            $token->{'value'} =~ s/^"(.*)"$/$1/;
+            $token->{'value'}  =~ s/^"(.*)"$/$1/;
             $token->{'string'} = $token->{'value'};
 
             #
@@ -240,7 +302,7 @@ sub tokenize {
             foreach my $sequence (@STRING_ESCAPE_SEQUENCES) {
                 my ($pattern, $subst) = @{$sequence};
 
-                $token->{'value'} =~ s/$pattern/$subst->()/eg;
+                $token->{'value'} =~ s/$pattern/$subst->()/ismeg;
             }
 
             #

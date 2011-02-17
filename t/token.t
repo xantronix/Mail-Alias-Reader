@@ -17,15 +17,15 @@ my %TESTS = (
         'to_string'    => '# foo'
     },
 
-    '"/home/foo/Documents/Mail Spools/foo"' => {
+    '"/Mail Spools/foo\0173bar\0175/Test \x2b 123"' => {
         'is_value'     => 1,
         'is_punct'     => 0,
         'is_address'   => 0,
         'is_directive' => 0,
         'is_command'   => 0,
         'is_file'      => 1,
-        'to_value'     => '/home/foo/Documents/Mail Spools/foo',
-        'to_string'    => '"/home/foo/Documents/Mail Spools/foo"'
+        'to_value'     => '/Mail Spools/foo{bar}/Test + 123',
+        'to_string'    => '"/Mail Spools/foo\0173bar\0175/Test \x2b 123"'
     },
 
     ',' => {
@@ -67,6 +67,39 @@ my %TESTS = (
         'is_file'      => 0,
         'to_string'    => ':test:/value',
         'to_value'     => '/value'
+    },
+
+    '/foo/bar/baz' => {
+        'is_value'     => 1,
+        'is_punct'     => 0,
+        'is_address'   => 0,
+        'is_directive' => 0,
+        'is_command'   => 0,
+        'is_file'      => 1,
+        'to_string'    => '/foo/bar/baz',
+        'to_value'     => '/foo/bar/baz'
+    },
+
+    '|foo' => {
+        'is_value'     => 1,
+        'is_punct'     => 0,
+        'is_address'   => 0,
+        'is_directive' => 0,
+        'is_command'   => 1,
+        'is_file'      => 0,
+        'to_string'    => '|foo',
+        'to_value'     => 'foo'
+    },
+
+    '"|append \"\r\n\t\+\""' => {
+        'is_value'     => 1,
+        'is_punct'     => 0,
+        'is_address'   => 0,
+        'is_directive' => 0,
+        'is_command'   => 1,
+        'is_file'      => 0,
+        'to_string'    => '"|append \"\r\n\t\+\""',
+        'to_value'     => qq(|append "\r\n\t+")
     }
 );
 
