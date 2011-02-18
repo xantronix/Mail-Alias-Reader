@@ -24,10 +24,10 @@ my @TOKEN_TYPES = (
     [ 'T_STRING'        => qr/("(?:\\.|[^"\\]+)*")/ ],
     [ 'T_COMMA'         => qr/,/ ],
     [ 'T_DIRECTIVE'     => qr/:([^\:\s]+):([^\:\s,]+)/ ],
-    [ 'T_COMMAND'       => qr/\|([\S]+)/ ],
+    [ 'T_COMMAND'       => qr/\|(\S+)/ ],
     [ 'T_ADDRESS'       => qr/([a-z0-9_\-@\.*]+)/i ],
     [ 'T_COLON'         => qr/\:/ ],
-    [ 'T_FILE'          => qr/([\S]+)/ ],
+    [ 'T_FILE'          => qr/(\S+)/ ],
     [ 'T_WHITESPACE'    => qr/\s+/ ],
 );
 
@@ -243,8 +243,6 @@ sub tokenize_for_types {
 
             next match;
         }
-
-        confess("Syntax error: '$buf'");
     }
 
     return \@tokens;
