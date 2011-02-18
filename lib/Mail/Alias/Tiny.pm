@@ -67,6 +67,12 @@ can be specified as well.
 =cut
 sub open {
     my ($class, %opts) = @_;
+
+    #
+    # If no parsing mode is specified, then assume a default of 'aliases',
+    # for aliases(5) mode parsing.  Otherwise, a value of 'forward' can be
+    # passed, suitable for parsing ~/.forward declarations.
+    #
     $opts{'mode'} ||= 'aliases';
 
     confess('Unknown parsing mode') unless $opts{'mode'} =~ /^aliases|forward$/;
