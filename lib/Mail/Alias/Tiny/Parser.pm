@@ -48,9 +48,10 @@ sub _parse_aliases_statement {
         next if $token->isa(qw/T_BEGIN T_COMMENT T_WHITESPACE/);
 
         if ($last_token->isa('T_BEGIN')) {
-            confess("Expected address as name of alias, found $token->{'type'}") unless $token->isa('T_ADDRESS');
+            confess("Expected address as name of alias, found $token->{'type'}") unless $token->is_address;
         } elsif ($token->isa('T_COLON')) {
-            confess('Unexpected colon') unless $last_token->isa('T_ADDRESS');
+            confess('Unexpected colon') unless $last_token->is_address;
+            confess('Too many colons') if $name;
 
             $name = $last_token->{'value'};
         } elsif ($token->isa('T_COMMA')) {
@@ -61,13 +62,14 @@ sub _parse_aliases_statement {
             last;
         } elsif ($token->is_value) {
             push @destinations, $token;
+        } else {
+            confess("Unexpected $token->{'type'}");
         }
 
         $last_token = $token;
     }
 
     confess('Alias statement has no name') unless defined $name;
-    confess('Aliases statement has no destinations') unless @destinations;
 
     return ($name, \@destinations);
 }
