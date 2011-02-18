@@ -6,4 +6,5 @@ lib/Mail/Alias/Tiny.pm
 lib/Mail/Alias/Tiny/Parser.pm
 lib/Mail/Alias/Tiny/Token.pm
 t/001_load.t
+t/parser.t
 t/token.t
