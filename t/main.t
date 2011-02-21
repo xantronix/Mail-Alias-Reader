@@ -5,7 +5,7 @@ use Mail::Alias::Tiny ();
 
 use File::Temp qw(mkstemp);
 
-use Test::More ('no_plan');
+use Test::More ('tests' => 9);
 use Test::Exception;
 
 throws_ok {

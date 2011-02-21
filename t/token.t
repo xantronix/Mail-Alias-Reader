@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More ('no_plan');
 
-use Mail::Alias::Tiny::Token;
+use Mail::Alias::Tiny::Token ('tests' => 69);
 
 my %TESTS = (
     '#foo' => {
@@ -91,15 +91,15 @@ my %TESTS = (
         'to_value'     => 'foo'
     },
 
-    '"|append \"\r\n\t\+\""' => {
+    '"|append \"\r\n\t\""' => {
         'is_value'     => 1,
         'is_punct'     => 0,
         'is_address'   => 0,
         'is_directive' => 0,
         'is_command'   => 1,
         'is_file'      => 0,
-        'to_string'    => '"|append \"\r\n\t\+\""',
-        'to_value'     => qq(|append "\r\n\t+")
+        'to_string'    => '"|append \"\r\n\t\""',
+        'to_value'     => qq(|append "\r\n\t")
     }
 );
 

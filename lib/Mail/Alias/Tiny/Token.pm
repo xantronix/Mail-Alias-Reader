@@ -270,12 +270,16 @@ sub tokenize {
     # escape sequence patterns and substitutions are iterated over for each
     # double quoted expression, performing unescaping where necessary.
     #
+    my %WHITESPACE = (
+        'r' => "\r",
+        'n' => "\n",
+        't' => "\t"
+    );
+
     my @STRING_ESCAPE_SEQUENCES = (
         [ qr/\\(0\d*)/        => sub { pack 'W', oct($1) } ],
         [ qr/\\(x[0-9a-f]+)/  => sub { pack 'W', hex("0$1") } ],
-        [ qr/\\r/             => sub { "\r" } ],
-        [ qr/\\n/             => sub { "\n" } ],
-        [ qr/\\t/             => sub { "\t" } ],
+        [ qr/\\([rnt])/       => sub { $WHITESPACE{$1} } ],
         [ qr/\\(.)/           => sub { $1 } ]
     );
 
@@ -291,7 +295,7 @@ sub tokenize {
         # delimited string out for a more specific type.
         #
         if ($token->isa('T_STRING')) {
-            $token->{'value'}  =~ s/^"(.*)"$/$1/;
+            $token->{'value'}  =~ s/^"(.*)"$/$1/m;
             $token->{'string'} = $token->{'value'};
 
             #
@@ -300,7 +304,7 @@ sub tokenize {
             foreach my $sequence (@STRING_ESCAPE_SEQUENCES) {
                 my ($pattern, $subst) = @{$sequence};
 
-                $token->{'value'} =~ s/$pattern/$subst->()/ismeg;
+                $token->{'value'} =~ s/$pattern/$subst->()/smeg;
             }
 
             #

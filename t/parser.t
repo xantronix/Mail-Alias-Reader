@@ -5,7 +5,7 @@ use Mail::Alias::Tiny ();
 use Mail::Alias::Tiny::Token ();
 use Mail::Alias::Tiny::Parser ();
 
-use Test::More ('no_plan');
+use Test::More ('tests' => 15);
 use Test::Exception;
 
 sub open_reader {

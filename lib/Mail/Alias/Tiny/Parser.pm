@@ -3,7 +3,7 @@ package Mail::Alias::Tiny::Parser;
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny::Token;
+use Mail::Alias::Tiny::Token ();
 
 use Carp;
 
