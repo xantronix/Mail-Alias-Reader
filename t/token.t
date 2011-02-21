@@ -99,7 +99,7 @@ my %TESTS = (
         'is_command'   => 1,
         'is_file'      => 0,
         'to_string'    => '"|append \"\r\n\t\""',
-        'to_value'     => qq(|append "\r\n\t")
+        'to_value'     => qq(append "\r\n\t")
     }
 );
 
