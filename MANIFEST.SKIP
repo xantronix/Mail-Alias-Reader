@@ -6,3 +6,5 @@
 ^cover_db/
 ^Makefile$
 ^MANIFEST\.
+^\.
+/\.

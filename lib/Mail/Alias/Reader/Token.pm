@@ -1,4 +1,4 @@
-package Mail::Alias::Tiny::Token;
+package Mail::Alias::Reader::Token;
 
 use strict;
 use warnings;
@@ -7,12 +7,12 @@ use Carp;
 
 =head1 NAME
 
-Mail::Alias::Tiny::Token
+Mail::Alias::Reader::Token
 
 =head1 DESCRIPTION
 
-Mail::Alias::Tiny::Token is not only the class represents an aliases(5) parser
-token, but also itself is returned by L<Mail::Alias::Tiny> as a representation
+Mail::Alias::Reader::Token is not only the class represents an aliases(5) parser
+token, but also itself is returned by L<Mail::Alias::Reader> as a representation
 of a mail alias destination.  For the purposes of this documentation, only the
 public-facing methods which facilitate the usage of instances of this class
 shall be discussed.
@@ -39,7 +39,7 @@ my @TOKEN_STRING_TYPES = (
 );
 
 #
-# Mail::Alias::Tiny::Token->new($type)
+# Mail::Alias::Reader::Token->new($type)
 #
 # Create a new mail alias parser token of the given type.  This method isn't
 # actually meant to be called publically; rather, it is simply a shortcut to
@@ -206,7 +206,7 @@ sub to_string {
 }
 
 #
-# Mail::Alias::Tiny::Token->tokenize_for_types($buf, @types)
+# Mail::Alias::Reader::Token->tokenize_for_types($buf, @types)
 #
 # Transform the given text buffer, $buf, into a series of tokens, based on the
 # rules passed in @types (defined near the top of this file).  Returns an ARRAY
@@ -219,7 +219,7 @@ sub to_string {
 #
 # This method does not provide the main tokenizing interface; rather, it only
 # facilitates for the easy access of a single pass of tokenizing, and is called
-# by the Mail::Alias::Tiny::Token->tokenize() method.
+# by the Mail::Alias::Reader::Token->tokenize() method.
 #
 sub tokenize_for_types {
     my ($class, $buf, @types) = @_;
@@ -249,7 +249,7 @@ sub tokenize_for_types {
 }
 
 #
-# Mail::Alias::Tiny::Token->tokenize($buf)
+# Mail::Alias::Reader::Token->tokenize($buf)
 #
 # Returns an ARRAY of tokens parsed from the given text buffer.
 #

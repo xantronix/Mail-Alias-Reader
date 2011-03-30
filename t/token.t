@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More ('no_plan');
 
-use Mail::Alias::Tiny::Token ('tests' => 69);
+use Mail::Alias::Reader::Token ('tests' => 69);
 
 my %TESTS = (
     '#foo' => {
@@ -105,11 +105,11 @@ my %TESTS = (
 
 foreach my $test (keys %TESTS) {
     my $checks = $TESTS{$test};
-    my $token = Mail::Alias::Tiny::Token->tokenize($test)->[1];
+    my $token = Mail::Alias::Reader::Token->tokenize($test)->[1];
 
     foreach my $method (keys %{$checks}) {
         my $expected = $checks->{$method};
         
-        ok($token->$method() eq $expected, qq(Mail::Alias::Tiny::Token->$method() for "$test" is $expected));
+        ok($token->$method() eq $expected, qq(Mail::Alias::Reader::Token->$method() for "$test" is $expected));
     }
 }

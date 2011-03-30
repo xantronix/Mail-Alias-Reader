@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny;
+use Mail::Alias::Reader;
 
-my $reader = Mail::Alias::Tiny->open(
+my $reader = Mail::Alias::Reader->open(
     'file' => $ARGV[0],
     'mode' => 'aliases'
 );

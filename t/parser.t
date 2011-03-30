@@ -1,9 +1,9 @@
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny ();
-use Mail::Alias::Tiny::Token ();
-use Mail::Alias::Tiny::Parser ();
+use Mail::Alias::Reader ();
+use Mail::Alias::Reader::Token ();
+use Mail::Alias::Reader::Parser ();
 
 use Test::More ('tests' => 15);
 use Test::Exception;
@@ -28,7 +28,7 @@ sub open_reader {
 
     close($in);
 
-    my $reader = Mail::Alias::Tiny->open(
+    my $reader = Mail::Alias::Reader->open(
         'handle' => $out,
         'mode'   => $mode
     );
@@ -60,7 +60,7 @@ sub open_reader {
 
             throws_ok {
                 $reader->read
-            } qr/Expected address as name of alias/, "Mail::Alias::Tiny::Parser needs an address as name of alias"
+            } qr/Expected address as name of alias/, "Mail::Alias::Reader::Parser needs an address as name of alias"
         },
 
         'this, should, : not, work' => sub {
@@ -68,7 +68,7 @@ sub open_reader {
 
             throws_ok {
                 $reader->read
-            } qr/Unexpected colon/, "Mail::Alias::Tiny::Parser is intolerant of misplaced colons";
+            } qr/Unexpected colon/, "Mail::Alias::Reader::Parser is intolerant of misplaced colons";
         },
 
         'this: should: not: work' => sub {
@@ -76,7 +76,7 @@ sub open_reader {
 
             throws_ok {
                 $reader->read
-            } qr/Too many colons/, "Mail::Alias::Tiny::Parser is intolerant of multiple colons";
+            } qr/Too many colons/, "Mail::Alias::Reader::Parser is intolerant of multiple colons";
         },
 
         'this,,should,,not,,work' => sub {
@@ -84,7 +84,7 @@ sub open_reader {
 
             throws_ok {
                 $reader->read
-            } qr/Unexpected comma/, "Mail::Alias::Tiny::Parser is intolerant of misplaced commas";
+            } qr/Unexpected comma/, "Mail::Alias::Reader::Parser is intolerant of misplaced commas";
         },
 
         'this, should, fail:' => sub {
@@ -92,7 +92,7 @@ sub open_reader {
 
             throws_ok {
                 $reader->read
-            } qr/Unexpected end of alias/, "Mail::Alias::Tiny::Parser wants a value at the end of statement";
+            } qr/Unexpected end of alias/, "Mail::Alias::Reader::Parser wants a value at the end of statement";
         },
     );
 
@@ -173,11 +173,11 @@ sub open_reader {
 # Some more in-depth coverage of internal details of ~/.forward parsing mode
 #
 {
-    my @tokens = map { Mail::Alias::Tiny::Token->new($_) } qw(T_BEGIN T_WHITESPACE);
+    my @tokens = map { Mail::Alias::Reader::Token->new($_) } qw(T_BEGIN T_WHITESPACE);
 
     throws_ok {
-        Mail::Alias::Tiny::Parser::_parse_forward_statement(\@tokens)
-    } qr/Statement contains no destinations/, "Mail::Alias::Tiny::Parser expects forward statements to have values";
+        Mail::Alias::Reader::Parser::_parse_forward_statement(\@tokens)
+    } qr/Statement contains no destinations/, "Mail::Alias::Reader::Parser expects forward statements to have values";
 }
 
 #
@@ -185,10 +185,10 @@ sub open_reader {
 #
 {
     throws_ok {
-        my @tokens = map { Mail::Alias::Tiny::Token->new($_) } qw(T_BEGIN T_ADDRESS T_COLON T_STRING T_END);
+        my @tokens = map { Mail::Alias::Reader::Token->new($_) } qw(T_BEGIN T_ADDRESS T_COLON T_STRING T_END);
 
-        Mail::Alias::Tiny::Parser::_parse_aliases_statement(\@tokens)
-    } qr/Unexpected T_STRING/, "Mail::Alias::Tiny::Parser freaks out if it receives an unprocessed T_STRING";
+        Mail::Alias::Reader::Parser::_parse_aliases_statement(\@tokens)
+    } qr/Unexpected T_STRING/, "Mail::Alias::Reader::Parser freaks out if it receives an unprocessed T_STRING";
 }
 
 #
@@ -196,6 +196,6 @@ sub open_reader {
 #
 {
     throws_ok {
-        Mail::Alias::Tiny::Parser->parse('foo', 'bar');
-    } qr/Invalid parsing mode/, "Mail::Alias::Tiny::Parser likes to have a valid parsing mode passed";
+        Mail::Alias::Reader::Parser->parse('foo', 'bar');
+    } qr/Invalid parsing mode/, "Mail::Alias::Reader::Parser likes to have a valid parsing mode passed";
 }

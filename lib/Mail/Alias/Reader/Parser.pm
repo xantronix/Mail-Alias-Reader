@@ -1,9 +1,9 @@
-package Mail::Alias::Tiny::Parser;
+package Mail::Alias::Reader::Parser;
 
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny::Token ();
+use Mail::Alias::Reader::Token ();
 
 use Carp;
 
@@ -11,7 +11,7 @@ sub _parse_forward_statement {
     my ($tokens) = @_;
     my @destinations;
 
-    my $last_token = Mail::Alias::Tiny::Token->new('T_BEGIN');
+    my $last_token = Mail::Alias::Reader::Token->new('T_BEGIN');
 
     foreach my $token (@{$tokens}) {
         next if $token->isa(qw/T_BEGIN T_COMMENT T_WHITESPACE/);
@@ -42,7 +42,7 @@ sub _parse_aliases_statement {
     my ($tokens) = @_;
     my ($name, @destinations);
 
-    my $last_token = Mail::Alias::Tiny::Token->new('T_BEGIN');
+    my $last_token = Mail::Alias::Reader::Token->new('T_BEGIN');
 
     foreach my $token (@{$tokens}) {
         next if $token->isa(qw/T_BEGIN T_COMMENT T_WHITESPACE/);
@@ -76,7 +76,7 @@ sub _parse_aliases_statement {
 
 sub parse {
     my ($class, $statement, $mode) = @_;
-    my $tokens = Mail::Alias::Tiny::Token->tokenize($statement);
+    my $tokens = Mail::Alias::Reader::Token->tokenize($statement);
 
     return _parse_forward_statement($tokens) if $mode eq 'forward';
     return _parse_aliases_statement($tokens) if $mode eq 'aliases';

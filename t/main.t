@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny ();
+use Mail::Alias::Reader ();
 
 use File::Temp qw(mkstemp);
 
@@ -9,32 +9,32 @@ use Test::More ('tests' => 9);
 use Test::Exception;
 
 throws_ok {
-    Mail::Alias::Tiny->open(
+    Mail::Alias::Reader->open(
         'mode' => 'foo',
         'file' => 'bar'
     )
-} qr/Unknown parsing mode/, 'Mail::Alias::Tiny->open() fails when passed unknown mode';
+} qr/Unknown parsing mode/, 'Mail::Alias::Reader->open() fails when passed unknown mode';
 
 throws_ok {
-    Mail::Alias::Tiny->open(
+    Mail::Alias::Reader->open(
         'mode' => 'aliases',
         'file' => '/dev/null/this/file/cannot/possibly/exist'
     )
-} qr/Unable to open aliases file/, 'Mail::Alias::Tiny->open() fails when file open() fails';
+} qr/Unable to open aliases file/, 'Mail::Alias::Reader->open() fails when file open() fails';
 
 throws_ok {
-    Mail::Alias::Tiny->open(
+    Mail::Alias::Reader->open(
         'mode' => 'aliases'
     )
-} qr/No file or file handle specified/, 'Mail::Alias::Tiny->open() fails when no file or file handle is passed';
+} qr/No file or file handle specified/, 'Mail::Alias::Reader->open() fails when no file or file handle is passed';
 
 lives_ok {
     open(my $fh, '<', '/dev/null') or die("Cannot open /dev/null: $!");
 
-    Mail::Alias::Tiny->open(
+    Mail::Alias::Reader->open(
         'handle' => $fh
     )->close;
-} 'Mail::Alias::Tiny->open() defaults to a mode of "aliases"';
+} 'Mail::Alias::Reader->open() defaults to a mode of "aliases"';
 
 {
     my %TESTS = (
@@ -54,7 +54,7 @@ lives_ok {
 
     close $fh;
 
-    my $reader = Mail::Alias::Tiny->open(
+    my $reader = Mail::Alias::Reader->open(
         'mode' => 'aliases',
         'file' => $file
     );
@@ -68,10 +68,10 @@ lives_ok {
     $reader->close;
     unlink($file);
 
-    ok(1, 'Mail::Alias::Tiny->read() seems to cope well with empty lines by ignoring them');
-    ok(keys %aliases == keys %TESTS, 'Mail::Alias::Tiny->read() returns the correct number of results');
+    ok(1, 'Mail::Alias::Reader->read() seems to cope well with empty lines by ignoring them');
+    ok(keys %aliases == keys %TESTS, 'Mail::Alias::Reader->read() returns the correct number of results');
 
     foreach my $test (keys %TESTS) {
-        ok(exists $aliases{$test}, qq{Mail::Alias::Tiny->read() found an alias for "$test"});
+        ok(exists $aliases{$test}, qq{Mail::Alias::Reader->read() found an alias for "$test"});
     }
 }

@@ -1,9 +1,9 @@
-package Mail::Alias::Tiny;
+package Mail::Alias::Reader;
 
 use strict;
 use warnings;
 
-use Mail::Alias::Tiny::Parser ();
+use Mail::Alias::Reader::Parser ();
 
 use Carp;
 
@@ -21,11 +21,11 @@ BEGIN {
 
 =head1 NAME
 
-Mail::Alias::Tiny - Read aliases(5) and ~/.forward declarations
+Mail::Alias::Reader - Read aliases(5) and ~/.forward declarations
 
 =head1 SYNOPSIS
 
-    my $reader = Mail::Alias::Tiny->open(
+    my $reader = Mail::Alias::Reader->open(
         'handle' => \*STDIN,
         'mode'   => 'aliases'
     );
@@ -40,7 +40,7 @@ Mail::Alias::Tiny - Read aliases(5) and ~/.forward declarations
 
 =head1 DESCRIPTION
 
-Mail::Alias::Tiny is a small but oddly flexible module that facilitates the
+Mail::Alias::Reader is a small but oddly flexible module that facilitates the
 reading of aliases(5)-style mail alias and ~/.forward declarations.  It does
 not directly provide support for the writing and in-memory manipulation of
 these files as a whole, however its limited feature set may be considered to
@@ -55,7 +55,7 @@ used internally, keeping code footprint low without being too much of a hassle.
 
 =over
 
-=item Mail::Alias::Tiny->open(%opts)
+=item Mail::Alias::Reader->open(%opts)
 
 Open a file (C<file>) or stream (C<handle>) based on the values provided in
 C<%opts>, returning a mail alias reader as a result.  A parsing C<mode> can be
@@ -111,7 +111,7 @@ following manners:
 
 =item C<aliases>
 
-When Mail::Alias::Tiny is set to read in C<aliases> mode, a plain scalar
+When Mail::Alias::Reader is set to read in C<aliases> mode, a plain scalar
 value reflecting the name of the alias, followed by an C<ARRAY> reference
 containing mail destinations, is returned, in list context.
 
@@ -121,8 +121,8 @@ containing mail destinations, is returned, in list context.
 
     my $destinations = $reader->read;
 
-When Mail::Alias::Tiny is set to read in C<forward> mode, an C<ARRAY> reference
-containing mail destinations is returned in a single scalar.
+When Mail::Alias::Reader is set to read in C<forward> mode, an C<ARRAY>
+reference containing mail destinations is returned in a single scalar.
 
 =back
 
@@ -131,10 +131,11 @@ containing mail destinations is returned in a single scalar.
 =head1 THE MAIL DESTINATION TOKEN
 
 Mail destination objects returned by C<$reader-E<gt>read()> are C<HASH> objects
-bless()ed into the Mail::Alias::Tiny::Token package, and contain a small handful
-of data attributes, but can be inspected with a variety of helper functions in
-the form of instance methods.  Please see the L<Mail::Alias::Tiny::Token>
-documentation for a listing of these helper functions.
+bless()ed into the Mail::Alias::Reader::Token package, and contain a small
+handful of data attributes, but can be inspected with a variety of helper
+functions in the form of instance methods.  Please see the
+L<Mail::Alias::Reader::Token> documentation for a listing of these helper
+functions.
 
 The mail destination attributes include:
 
@@ -199,7 +200,7 @@ sub read {
         next unless $line;
         next if $line =~ /^(#|$)/;
 
-        return Mail::Alias::Tiny::Parser->parse($line, $self->{'mode'});
+        return Mail::Alias::Reader::Parser->parse($line, $self->{'mode'});
     }
 
     return;
