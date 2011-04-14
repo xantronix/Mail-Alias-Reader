@@ -5,36 +5,36 @@ use Mail::Alias::Reader ();
 
 use File::Temp qw(mkstemp);
 
-use Test::More ('tests' => 9);
+use Test::More ( 'tests' => 9 );
 use Test::Exception;
 
 throws_ok {
     Mail::Alias::Reader->open(
         'mode' => 'foo',
         'file' => 'bar'
-    )
-} qr/Unknown parsing mode/, 'Mail::Alias::Reader->open() fails when passed unknown mode';
+    );
+}
+qr/Unknown parsing mode/, 'Mail::Alias::Reader->open() fails when passed unknown mode';
 
 throws_ok {
     Mail::Alias::Reader->open(
         'mode' => 'aliases',
         'file' => '/dev/null/this/file/cannot/possibly/exist'
-    )
-} qr/Unable to open aliases file/, 'Mail::Alias::Reader->open() fails when file open() fails';
+    );
+}
+qr/Unable to open aliases file/, 'Mail::Alias::Reader->open() fails when file open() fails';
 
 throws_ok {
-    Mail::Alias::Reader->open(
-        'mode' => 'aliases'
-    )
-} qr/No file or file handle specified/, 'Mail::Alias::Reader->open() fails when no file or file handle is passed';
+    Mail::Alias::Reader->open( 'mode' => 'aliases' );
+}
+qr/No file or file handle specified/, 'Mail::Alias::Reader->open() fails when no file or file handle is passed';
 
 lives_ok {
-    open(my $fh, '<', '/dev/null') or die("Cannot open /dev/null: $!");
+    open( my $fh, '<', '/dev/null' ) or die("Cannot open /dev/null: $!");
 
-    Mail::Alias::Reader->open(
-        'handle' => $fh
-    )->close;
-} 'Mail::Alias::Reader->open() defaults to a mode of "aliases"';
+    Mail::Alias::Reader->open( 'handle' => $fh )->close;
+}
+'Mail::Alias::Reader->open() defaults to a mode of "aliases"';
 
 {
     my %TESTS = (
@@ -43,12 +43,12 @@ lives_ok {
         'this' => 'should@work.mil'
     );
 
-    my ($fh, $file) = mkstemp('/tmp/.mail-alias-parser-test-XXXXXX') or die("Cannot create temporary file: $!");
+    my ( $fh, $file ) = mkstemp('/tmp/.mail-alias-parser-test-XXXXXX') or die("Cannot create temporary file: $!");
 
-    print {$fh} "          \n"; # Throw in a line of whitespace to attempt to trip up the parser
+    print {$fh} "          \n";                                                                 # Throw in a line of whitespace to attempt to trip up the parser
     print {$fh} "# This entire line is a comment and shouldn't show up in \%aliases below\n";
 
-    foreach my $alias (sort keys %TESTS) {
+    foreach my $alias ( sort keys %TESTS ) {
         print {$fh} "$alias: $TESTS{$alias}\n";
     }
 
@@ -61,17 +61,17 @@ lives_ok {
 
     my %aliases;
 
-    while (my ($name, $destinations) = $reader->read) {
+    while ( my ( $name, $destinations ) = $reader->read ) {
         $aliases{$name} = $destinations;
     }
 
     $reader->close;
     unlink($file);
 
-    ok(1, 'Mail::Alias::Reader->read() seems to cope well with empty lines by ignoring them');
-    ok(keys %aliases == keys %TESTS, 'Mail::Alias::Reader->read() returns the correct number of results');
+    ok( 1,                            'Mail::Alias::Reader->read() seems to cope well with empty lines by ignoring them' );
+    ok( keys %aliases == keys %TESTS, 'Mail::Alias::Reader->read() returns the correct number of results' );
 
-    foreach my $test (keys %TESTS) {
-        ok(exists $aliases{$test}, qq{Mail::Alias::Reader->read() found an alias for "$test"});
+    foreach my $test ( keys %TESTS ) {
+        ok( exists $aliases{$test}, qq{Mail::Alias::Reader->read() found an alias for "$test"} );
     }
 }

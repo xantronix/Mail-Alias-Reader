@@ -13,20 +13,23 @@ sub _parse_forward_statement {
 
     my $last_token = Mail::Alias::Reader::Token->new('T_BEGIN');
 
-    foreach my $token (@{$tokens}) {
+    foreach my $token ( @{$tokens} ) {
         next if $token->isa(qw/T_BEGIN T_COMMENT T_WHITESPACE/);
 
-        if ($token->is_value) {
+        if ( $token->is_value ) {
             confess('Unexpected value') if $last_token->is_value;
 
             push @destinations, $token;
-        } elsif ($token->isa('T_COMMA')) {
+        }
+        elsif ( $token->isa('T_COMMA') ) {
             confess('Unexpected comma') unless $last_token->is_value;
-        } elsif ($token->isa('T_END')) {
+        }
+        elsif ( $token->isa('T_END') ) {
             confess('Unexpected end of statement') unless $last_token->is_value;
 
             last;
-        } else {
+        }
+        else {
             confess("Unexpected $token->{'type'}");
         }
 
@@ -40,29 +43,34 @@ sub _parse_forward_statement {
 
 sub _parse_aliases_statement {
     my ($tokens) = @_;
-    my ($name, @destinations);
+    my ( $name, @destinations );
 
     my $last_token = Mail::Alias::Reader::Token->new('T_BEGIN');
 
-    foreach my $token (@{$tokens}) {
+    foreach my $token ( @{$tokens} ) {
         next if $token->isa(qw/T_BEGIN T_COMMENT T_WHITESPACE/);
 
-        if ($last_token->isa('T_BEGIN')) {
+        if ( $last_token->isa('T_BEGIN') ) {
             confess("Expected address as name of alias, found $token->{'type'}") unless $token->is_address;
-        } elsif ($token->isa('T_COLON')) {
+        }
+        elsif ( $token->isa('T_COLON') ) {
             confess('Unexpected colon') unless $last_token->is_address;
             confess('Too many colons') if $name;
 
             $name = $last_token->{'value'};
-        } elsif ($token->isa('T_COMMA')) {
+        }
+        elsif ( $token->isa('T_COMMA') ) {
             confess('Unexpected comma') unless $last_token->is_value;
-        } elsif ($token->isa('T_END')) {
+        }
+        elsif ( $token->isa('T_END') ) {
             confess('Unexpected end of aliases statement') unless $last_token->is_value;
 
             last;
-        } elsif ($token->is_value) {
+        }
+        elsif ( $token->is_value ) {
             push @destinations, $token;
-        } else {
+        }
+        else {
             confess("Unexpected $token->{'type'}");
         }
 
@@ -71,11 +79,11 @@ sub _parse_aliases_statement {
 
     confess('Alias statement has no name') unless defined $name;
 
-    return ($name, \@destinations);
+    return ( $name, \@destinations );
 }
 
 sub parse {
-    my ($class, $statement, $mode) = @_;
+    my ( $class, $statement, $mode ) = @_;
     my $tokens = Mail::Alias::Reader::Token->tokenize($statement);
 
     return _parse_forward_statement($tokens) if $mode eq 'forward';

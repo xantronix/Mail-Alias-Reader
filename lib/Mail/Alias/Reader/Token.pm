@@ -20,22 +20,22 @@ shall be discussed.
 =cut
 
 my @TOKEN_TYPES = (
-    [ 'T_COMMENT'       => qr/#\s*(.*)$/ ],
-    [ 'T_STRING'        => qr/("(?:\\.|[^"\\]+)*")/ ],
-    [ 'T_COMMA'         => qr/,/ ],
-    [ 'T_DIRECTIVE'     => qr/:([^\:\s]+):([^\:\s,]+)/ ],
-    [ 'T_COMMAND'       => qr/\|(\S+)/ ],
-    [ 'T_ADDRESS'       => qr/([a-z0-9_\-@\.*]+)/i ],
-    [ 'T_COLON'         => qr/\:/ ],
-    [ 'T_FILE'          => qr/(\S+)/ ],
-    [ 'T_WHITESPACE'    => qr/\s+/ ],
+    [ 'T_COMMENT'    => qr/#\s*(.*)$/ ],
+    [ 'T_STRING'     => qr/("(?:\\.|[^"\\]+)*")/ ],
+    [ 'T_COMMA'      => qr/,/ ],
+    [ 'T_DIRECTIVE'  => qr/:([^\:\s]+):([^\:\s,]+)/ ],
+    [ 'T_COMMAND'    => qr/\|(\S+)/ ],
+    [ 'T_ADDRESS'    => qr/([a-z0-9_\-@\.*]+)/i ],
+    [ 'T_COLON'      => qr/\:/ ],
+    [ 'T_FILE'       => qr/(\S+)/ ],
+    [ 'T_WHITESPACE' => qr/\s+/ ],
 );
 
 my @TOKEN_STRING_TYPES = (
-    [ 'T_DIRECTIVE'     => qr/:([^\:\s]+):\s*(.*)/s ],
-    [ 'T_COMMAND'       => qr/\|(.*)/s ],
-    [ 'T_ADDRESS'       => qr/([^\/]+)/s ],
-    [ 'T_FILE'          => qr/(.*)/s ]
+    [ 'T_DIRECTIVE' => qr/:([^\:\s]+):\s*(.*)/s ],
+    [ 'T_COMMAND'   => qr/\|(.*)/s ],
+    [ 'T_ADDRESS'   => qr/([^\/]+)/s ],
+    [ 'T_FILE'      => qr/(.*)/s ]
 );
 
 #
@@ -47,11 +47,9 @@ my @TOKEN_STRING_TYPES = (
 # punctuation, or similar.
 #
 sub new {
-    my ($class, $type) = @_;
+    my ( $class, $type ) = @_;
 
-    return bless {
-        'type' => $type
-    }, $class;
+    return bless { 'type' => $type }, $class;
 }
 
 #
@@ -61,7 +59,7 @@ sub new {
 # argument.
 #
 sub isa {
-    my ($self, @types) = @_;
+    my ( $self, @types ) = @_;
 
     foreach my $type (@types) {
         return 1 if $self->{'type'} eq $type;
@@ -104,6 +102,7 @@ Returns true if the mail destination described by the current token is a local
 part or fully qualified mail address.
 
 =cut
+
 sub is_address {
     return shift->isa('T_ADDRESS');
 }
@@ -114,6 +113,7 @@ Returns true if the mail destination described by the current token is a
 mail transfer agent directive.
 
 =cut
+
 sub is_directive {
     return shift->isa('T_DIRECTIVE');
 }
@@ -124,6 +124,7 @@ Returns true if the mail destination described by the current token is a
 command to which mail messages should be piped.
 
 =cut
+
 sub is_command {
     return shift->isa('T_COMMAND');
 }
@@ -136,6 +137,7 @@ to which mail messages should be appended.
 =back
 
 =cut
+
 sub is_file {
     return shift->isa('T_FILE');
 }
@@ -150,6 +152,7 @@ Returns a parsed and unescaped logical representation of the mail alias
 destination that was originally parsed to yield the current token object.
 
 =cut
+
 sub value {
     return shift->{'value'};
 }
@@ -162,6 +165,7 @@ originally parsed to yield the current token object.
 =back
 
 =cut
+
 sub to_string {
     my ($self) = @_;
     my $ret;
@@ -179,20 +183,24 @@ sub to_string {
         'T_WHITESPACE' => sub { ' ' }
     );
 
-    return $VALUES{$self->{'type'}}->() if exists $VALUES{$self->{'type'}};
+    return $VALUES{ $self->{'type'} }->() if exists $VALUES{ $self->{'type'} };
 
-    if (defined $self->{'string'}) {
+    if ( defined $self->{'string'} ) {
+
         #
         # If this token contains its original string representation, then
         # use that directly.  That way, there's no guesswork involved in how to
         # properly escape the data for recording to a file.
         #
         $ret = $self->{'string'};
-    } elsif ($self->isa('T_DIRECTIVE')) {
+    }
+    elsif ( $self->isa('T_DIRECTIVE') ) {
         $ret = ":$self->{'name'}:$self->{'value'}";
-    } elsif ($self->isa('T_COMMAND')) {
+    }
+    elsif ( $self->isa('T_COMMAND') ) {
         $ret = "|$self->{'value'}";
-    } else {
+    }
+    else {
         $ret = $self->{'value'};
     }
 
@@ -222,10 +230,10 @@ sub to_string {
 # by the Mail::Alias::Reader::Token->tokenize() method.
 #
 sub tokenize_for_types {
-    my ($class, $buf, @types) = @_;
+    my ( $class, $buf, @types ) = @_;
     my @tokens;
 
-    match: while ($buf) {
+  match: while ($buf) {
         foreach my $type (@types) {
             next unless $buf =~ s/^$type->[1]//;
 
@@ -233,9 +241,10 @@ sub tokenize_for_types {
                 'type' => $type->[0],
             }, $class;
 
-            if ($type->[0] eq 'T_DIRECTIVE') {
-                @{$token}{qw(name value)} = ($1, $2);
-            } else {
+            if ( $type->[0] eq 'T_DIRECTIVE' ) {
+                @{$token}{qw(name value)} = ( $1, $2 );
+            }
+            else {
                 $token->{'value'} = $1;
             }
 
@@ -263,7 +272,7 @@ sub tokenize_for_types {
 # and T_END token comes as the first and the last token returned, respectively.
 #
 sub tokenize {
-    my ($class, $buf) = @_;
+    my ( $class, $buf ) = @_;
 
     #
     # When parsing token data contained within double quotes, the following
@@ -277,32 +286,33 @@ sub tokenize {
     );
 
     my @STRING_ESCAPE_SEQUENCES = (
-        [ qr/\\(0\d*)/        => sub { pack 'W', oct($1) } ],
-        [ qr/\\(x[0-9a-f]+)/  => sub { pack 'W', hex("0$1") } ],
-        [ qr/\\([rnt])/       => sub { $WHITESPACE{$1} } ],
-        [ qr/\\([^rnt])/      => sub { $1 } ]
+        [ qr/\\(0\d*)/       => sub { pack 'W', oct($1) } ],
+        [ qr/\\(x[0-9a-f]+)/ => sub { pack 'W', hex("0$1") } ],
+        [ qr/\\([rnt])/      => sub { $WHITESPACE{$1} } ],
+        [ qr/\\([^rnt])/     => sub { $1 } ]
     );
 
     #
     # Perform first stage tokenization on the input.
     #
-    my $tokens = $class->tokenize_for_types($buf, @TOKEN_TYPES);
+    my $tokens = $class->tokenize_for_types( $buf, @TOKEN_TYPES );
 
-    foreach my $token (@{$tokens}) {
+    foreach my $token ( @{$tokens} ) {
+
         #
         # Perform second stage tokenization on any T_STRING tokens found.  As the aliases(5)
         # format lacks a string literal type, a second pass is required to parse the quote
         # delimited string out for a more specific type.
         #
-        if ($token->isa('T_STRING')) {
-            $token->{'value'}  =~ s/^"(.*)"$/$1/s;
+        if ( $token->isa('T_STRING') ) {
+            $token->{'value'} =~ s/^"(.*)"$/$1/s;
             $token->{'string'} = $token->{'value'};
 
             #
             # Parse for any escape sequences that may be present.
             #
             foreach my $sequence (@STRING_ESCAPE_SEQUENCES) {
-                my ($pattern, $subst) = @{$sequence};
+                my ( $pattern, $subst ) = @{$sequence};
 
                 $token->{'value'} =~ s/$pattern/$subst->()/seg;
             }
@@ -312,9 +322,9 @@ sub tokenize {
             # contents, copying the data directly into the existing token (so as to
             # not lose the previous reference).
             #
-            my $new_token = $class->tokenize_for_types($token->{'value'}, @TOKEN_STRING_TYPES)->[0];
+            my $new_token = $class->tokenize_for_types( $token->{'value'}, @TOKEN_STRING_TYPES )->[0];
 
-            @{$token}{keys %{$new_token}} = values %{$new_token};
+            @{$token}{ keys %{$new_token} } = values %{$new_token};
         }
     }
 

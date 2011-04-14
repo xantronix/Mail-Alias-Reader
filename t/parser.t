@@ -1,20 +1,20 @@
 use strict;
 use warnings;
 
-use Mail::Alias::Reader ();
-use Mail::Alias::Reader::Token ();
+use Mail::Alias::Reader         ();
+use Mail::Alias::Reader::Token  ();
 use Mail::Alias::Reader::Parser ();
 
-use Test::More ('tests' => 15);
+use Test::More ( 'tests' => 15 );
 use Test::Exception;
 
 sub open_reader {
-    my ($mode, @statements) = @_;
+    my ( $mode, @statements ) = @_;
 
-    pipe my ($out, $in) or die("Unable to pipe(): $!");
+    pipe my ( $out, $in ) or die("Unable to pipe(): $!");
     my $pid = fork();
 
-    if ($pid == 0) {
+    if ( $pid == 0 ) {
         close($out);
 
         foreach my $statement (@statements) {
@@ -22,7 +22,8 @@ sub open_reader {
         }
 
         exit(0);
-    } elsif (!defined($pid)) {
+    }
+    elsif ( !defined($pid) ) {
         die("Unable to fork(): $!");
     }
 
@@ -33,7 +34,7 @@ sub open_reader {
         'mode'   => $mode
     );
 
-    return ($reader, $pid);
+    return ( $reader, $pid );
 }
 
 #
@@ -42,72 +43,78 @@ sub open_reader {
 {
     my %TESTS = (
         'foo: bar, baz' => sub {
-            my ($name, $destinations) = $_[0]->read;
+            my ( $name, $destinations ) = $_[0]->read;
 
-            ok($name eq 'foo', "Alias name in '$_[1]' is '$name'");
+            ok( $name eq 'foo', "Alias name in '$_[1]' is '$name'" );
         },
 
         'bar baz' => sub {
-            my ($reader, $statement) = @_;
+            my ( $reader, $statement ) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Alias statement has no name/, "'$statement' produces an error";
+                $reader->read;
+            }
+            qr/Alias statement has no name/, "'$statement' produces an error";
         },
 
         '/dev/null: this, will, not, work' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Expected address as name of alias/, "Mail::Alias::Reader::Parser needs an address as name of alias"
+                $reader->read;
+            }
+            qr/Expected address as name of alias/, "Mail::Alias::Reader::Parser needs an address as name of alias";
         },
 
         'this, should, : not, work' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Unexpected colon/, "Mail::Alias::Reader::Parser is intolerant of misplaced colons";
+                $reader->read;
+            }
+            qr/Unexpected colon/, "Mail::Alias::Reader::Parser is intolerant of misplaced colons";
         },
 
         'this: should: not: work' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Too many colons/, "Mail::Alias::Reader::Parser is intolerant of multiple colons";
+                $reader->read;
+            }
+            qr/Too many colons/, "Mail::Alias::Reader::Parser is intolerant of multiple colons";
         },
 
         'this,,should,,not,,work' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Unexpected comma/, "Mail::Alias::Reader::Parser is intolerant of misplaced commas";
+                $reader->read;
+            }
+            qr/Unexpected comma/, "Mail::Alias::Reader::Parser is intolerant of misplaced commas";
         },
 
         'this, should, fail:' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Unexpected end of alias/, "Mail::Alias::Reader::Parser wants a value at the end of statement";
+                $reader->read;
+            }
+            qr/Unexpected end of alias/, "Mail::Alias::Reader::Parser wants a value at the end of statement";
         },
     );
 
     my @STATEMENTS = keys %TESTS;
-    my ($reader, $pid) = open_reader('aliases', @STATEMENTS);
+    my ( $reader, $pid ) = open_reader( 'aliases', @STATEMENTS );
 
     foreach my $statement (@STATEMENTS) {
         my $test = $TESTS{$statement};
 
-        $test->($reader, $statement);
+        $test->( $reader, $statement );
     }
 
     $reader->close;
 
-    waitpid($pid, 0);
+    waitpid( $pid, 0 );
 }
 
 #
@@ -116,10 +123,10 @@ sub open_reader {
 {
     my %TESTS = (
         'foo, bar, baz' => sub {
-            my ($reader, $statement) = @_;
+            my ( $reader, $statement ) = @_;
             my $destinations = $reader->read;
 
-            ok($destinations->[1]->{'value'} eq 'bar', "Second destination in '$statement' is 'bar'");
+            ok( $destinations->[1]->{'value'} eq 'bar', "Second destination in '$statement' is 'bar'" );
         },
 
         'foo: cats' => sub {
@@ -127,46 +134,50 @@ sub open_reader {
 
             throws_ok {
                 $reader->read;
-            } qr/Unexpected T_COLON/, "Parsing in 'forward' mode will not allow aliases(5) names";
+            }
+            qr/Unexpected T_COLON/, "Parsing in 'forward' mode will not allow aliases(5) names";
         },
 
         'foo bar baz' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Unexpected value/, "Values in 'forward' mode not separate by commas are illegal";
+                $reader->read;
+            }
+            qr/Unexpected value/, "Values in 'forward' mode not separate by commas are illegal";
         },
 
         'foo,,' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Unexpected comma/, "Multiple sequential comments in 'forward' mode are illegal";
+                $reader->read;
+            }
+            qr/Unexpected comma/, "Multiple sequential comments in 'forward' mode are illegal";
         },
 
         'foo,' => sub {
             my ($reader) = @_;
 
             throws_ok {
-                $reader->read
-            } qr/Unexpected end of statement/, "Comma at end of statement in 'forward' mode is illegal";
+                $reader->read;
+            }
+            qr/Unexpected end of statement/, "Comma at end of statement in 'forward' mode is illegal";
         },
     );
 
     my @STATEMENTS = keys %TESTS;
-    my ($reader, $pid) = open_reader('forward', @STATEMENTS);
+    my ( $reader, $pid ) = open_reader( 'forward', @STATEMENTS );
 
-    foreach my $statement (keys %TESTS) {
+    foreach my $statement ( keys %TESTS ) {
         my $test = $TESTS{$statement};
 
-        $test->($reader, $statement);
+        $test->( $reader, $statement );
     }
 
     $reader->close;
 
-    waitpid($pid, 0);
+    waitpid( $pid, 0 );
 }
 
 #
@@ -176,8 +187,9 @@ sub open_reader {
     my @tokens = map { Mail::Alias::Reader::Token->new($_) } qw(T_BEGIN T_WHITESPACE);
 
     throws_ok {
-        Mail::Alias::Reader::Parser::_parse_forward_statement(\@tokens)
-    } qr/Statement contains no destinations/, "Mail::Alias::Reader::Parser expects forward statements to have values";
+        Mail::Alias::Reader::Parser::_parse_forward_statement( \@tokens );
+    }
+    qr/Statement contains no destinations/, "Mail::Alias::Reader::Parser expects forward statements to have values";
 }
 
 #
@@ -187,8 +199,9 @@ sub open_reader {
     throws_ok {
         my @tokens = map { Mail::Alias::Reader::Token->new($_) } qw(T_BEGIN T_ADDRESS T_COLON T_STRING T_END);
 
-        Mail::Alias::Reader::Parser::_parse_aliases_statement(\@tokens)
-    } qr/Unexpected T_STRING/, "Mail::Alias::Reader::Parser freaks out if it receives an unprocessed T_STRING";
+        Mail::Alias::Reader::Parser::_parse_aliases_statement( \@tokens );
+    }
+    qr/Unexpected T_STRING/, "Mail::Alias::Reader::Parser freaks out if it receives an unprocessed T_STRING";
 }
 
 #
@@ -196,6 +209,7 @@ sub open_reader {
 #
 {
     throws_ok {
-        Mail::Alias::Reader::Parser->parse('foo', 'bar');
-    } qr/Invalid parsing mode/, "Mail::Alias::Reader::Parser likes to have a valid parsing mode passed";
+        Mail::Alias::Reader::Parser->parse( 'foo', 'bar' );
+    }
+    qr/Invalid parsing mode/, "Mail::Alias::Reader::Parser likes to have a valid parsing mode passed";
 }

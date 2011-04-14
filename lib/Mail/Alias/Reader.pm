@@ -11,8 +11,8 @@ BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
-    $VERSION     = '0.01';
-    @ISA         = qw(Exporter);
+    $VERSION = '0.01';
+    @ISA     = qw(Exporter);
 
     @EXPORT      = ();
     @EXPORT_OK   = ();
@@ -65,8 +65,9 @@ can be specified as well.
 =back
 
 =cut
+
 sub open {
-    my ($class, %opts) = @_;
+    my ( $class, %opts ) = @_;
 
     #
     # If no parsing mode is specified, then assume a default of 'aliases',
@@ -79,11 +80,13 @@ sub open {
 
     my $fh;
 
-    if (defined $opts{'file'}) {
-        open($fh, '<', $opts{'file'}) or confess("Unable to open aliases file $opts{'file'}: $!");
-    } elsif (defined $opts{'handle'}) {
+    if ( defined $opts{'file'} ) {
+        open( $fh, '<', $opts{'file'} ) or confess("Unable to open aliases file $opts{'file'}: $!");
+    }
+    elsif ( defined $opts{'handle'} ) {
         $fh = $opts{'handle'};
-    } else {
+    }
+    else {
         confess('No file or file handle specified');
     }
 
@@ -190,17 +193,18 @@ the name of the 'C<directive>' portion.  Of course, the value in the
 =back
 
 =cut
+
 sub read {
     my ($self) = @_;
 
-    while (my $line = readline($self->{'handle'})) {
+    while ( my $line = readline( $self->{'handle'} ) ) {
         $line =~ s/^\s+//;
         $line =~ s/\s+$//;
 
         next unless $line;
         next if $line =~ /^(#|$)/;
 
-        return Mail::Alias::Reader::Parser->parse($line, $self->{'mode'});
+        return Mail::Alias::Reader::Parser->parse( $line, $self->{'mode'} );
     }
 
     return;
@@ -216,6 +220,7 @@ Close the current file stream.  Any subsequent C<$reader-E<gt>read()> calls will
 return nothing.
 
 =cut
+
 sub close {
     close shift->{'handle'};
 }
