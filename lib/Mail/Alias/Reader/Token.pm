@@ -144,13 +144,13 @@ sub is_file {
 
 =over
 
-=item $destination->to_value()
+=item $destination->value()
 
 Returns a parsed and unescaped logical representation of the mail alias
 destination that was originally parsed to yield the current token object.
 
 =cut
-sub to_value {
+sub value {
     return shift->{'value'};
 }
 
