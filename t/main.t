@@ -68,7 +68,6 @@ lives_ok {
     $reader->close;
     unlink($file);
 
-    ok( 1,                            'Mail::Alias::Reader->read() seems to cope well with empty lines by ignoring them' );
     ok( keys %aliases == keys %TESTS, 'Mail::Alias::Reader->read() returns the correct number of results' );
 
     foreach my $test ( keys %TESTS ) {

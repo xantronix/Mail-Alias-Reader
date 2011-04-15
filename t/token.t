@@ -110,6 +110,6 @@ foreach my $test ( keys %TESTS ) {
     foreach my $method ( keys %{$checks} ) {
         my $expected = $checks->{$method};
 
-        ok( $token->$method() eq $expected, qq(Mail::Alias::Reader::Token->$method() for "$test" is $expected) );
+        is( $token->$method(), $expected, qq(Mail::Alias::Reader::Token->$method() for "$test" is $expected) );
     }
 }

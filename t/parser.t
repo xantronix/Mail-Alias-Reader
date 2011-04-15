@@ -45,7 +45,7 @@ sub open_reader {
         'foo: bar, baz' => sub {
             my ( $name, $destinations ) = $_[0]->read;
 
-            ok( $name eq 'foo', "Alias name in '$_[1]' is '$name'" );
+            is( $name, 'foo', "Alias name in '$_[1]' is '$name'" );
         },
 
         'bar baz' => sub {
@@ -126,7 +126,7 @@ sub open_reader {
             my ( $reader, $statement ) = @_;
             my $destinations = $reader->read;
 
-            ok( $destinations->[1]->{'value'} eq 'bar', "Second destination in '$statement' is 'bar'" );
+            is( $destinations->[1]->{'value'}, 'bar', "Second destination in '$statement' is 'bar'" );
         },
 
         'foo: cats' => sub {

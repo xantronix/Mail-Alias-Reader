@@ -324,7 +324,7 @@ sub tokenize {
             #
             my $new_token = $class->tokenize_for_types( $token->{'value'}, @TOKEN_STRING_TYPES )->[0];
 
-            @{$token}{ keys %{$new_token} } = values %{$new_token};
+            %{$token} = %{$new_token};
         }
     }
 
