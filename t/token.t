@@ -1,3 +1,8 @@
+#
+# Mail::Alias::Reader                             Copyright(c) 2011 cPanel, Inc.
+#                                                           All rights Reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+#
 use strict;
 use warnings;
 
