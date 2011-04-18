@@ -93,3 +93,9 @@ sub parse {
 }
 
 1;
+
+__END__
+
+=head1 COPYRIGHT
+
+Copyright(c) 2011 cPanel, Inc.  All rights reserved.

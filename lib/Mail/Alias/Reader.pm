@@ -241,3 +241,7 @@ during the runtime of this module.
 =head1 AUTHOR
 
 Written and maintained by Erin Schoenhals <erin@cpanel.net>.
+
+=head1 COPYRIGHT
+
+Copyright(c) 2011 cPanel, Inc.  All rights reserved.

@@ -342,3 +342,7 @@ __END__
 =head1 AUTHOR
 
 Erin Schoenhals E<lt>erin@cpanel.netE<gt>
+
+=head1 COPYRIGHT
+
+Copyright(c) 2011 cPanel, Inc.  All rights reserved.
