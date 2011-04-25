@@ -10,7 +10,7 @@ use Mail::Alias::Reader ();
 
 use File::Temp qw(mkstemp);
 
-use Test::More ( 'tests' => 9 );
+use Test::More ( 'tests' => 8 );
 use Test::Exception;
 
 throws_ok {

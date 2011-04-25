@@ -168,7 +168,21 @@ originally parsed to yield the current token object.
 
 sub to_string {
     my ($self) = @_;
-    my $ret;
+
+    my %SUBSTITUTIONS = (
+        "\r" => '\r',
+        "\n" => '\n',
+        "\t" => '\t',
+        '"'  => '\"'
+    );
+
+    my $value = $self->{'value'};
+
+    if ($value) {
+        foreach my $search (keys %SUBSTITUTIONS) {
+            $value =~ s/$search/$SUBSTITUTIONS{$search}/g;
+        }
+    }
 
     #
     # Since not every token type has a "value", per se, lazy evaluation is
@@ -176,32 +190,25 @@ sub to_string {
     # part of this hash when dealing with tokens that are anything other than a
     # comment.
     #
-    my %VALUES = (
-        'T_COMMENT'    => sub { "# $self->{'value'}" },
+    my %FORMATTERS = (
+        'T_COMMENT'    => sub { "# $value" },
         'T_COMMA'      => sub { ',' },
         'T_COLON'      => sub { ':' },
         'T_WHITESPACE' => sub { ' ' }
     );
 
-    return $VALUES{ $self->{'type'} }->() if exists $VALUES{ $self->{'type'} };
+    return $FORMATTERS{ $self->{'type'} }->() if exists $FORMATTERS{ $self->{'type'} };
 
-    if ( defined $self->{'string'} ) {
+    my $ret;
 
-        #
-        # If this token contains its original string representation, then
-        # use that directly.  That way, there's no guesswork involved in how to
-        # properly escape the data for recording to a file.
-        #
-        $ret = $self->{'string'};
+    if ( $self->is_directive ) {
+        $ret = ":$self->{'name'}:$value";
     }
-    elsif ( $self->isa('T_DIRECTIVE') ) {
-        $ret = ":$self->{'name'}:$self->{'value'}";
-    }
-    elsif ( $self->isa('T_COMMAND') ) {
-        $ret = "|$self->{'value'}";
+    elsif ( $self->is_command ) {
+        $ret = "|$value";
     }
     else {
-        $ret = $self->{'value'};
+        $ret = $value;
     }
 
     #
@@ -306,7 +313,6 @@ sub tokenize {
         #
         if ( $token->isa('T_STRING') ) {
             $token->{'value'} =~ s/^"(.*)"$/$1/s;
-            $token->{'string'} = $token->{'value'};
 
             #
             # Parse for any escape sequences that may be present.
@@ -322,9 +328,7 @@ sub tokenize {
             # contents, copying the data directly into the existing token (so as to
             # not lose the previous reference).
             #
-            my $new_token = $class->tokenize_for_types( $token->{'value'}, @TOKEN_STRING_TYPES )->[0];
-
-            %{$token} = %{$new_token};
+            %{$token} = %{$class->tokenize_for_types( $token->{'value'}, @TOKEN_STRING_TYPES )->[0]};
         }
     }
 

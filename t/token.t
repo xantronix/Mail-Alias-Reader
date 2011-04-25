@@ -30,7 +30,7 @@ my %TESTS = (
         'is_command'   => 0,
         'is_file'      => 1,
         'value'        => '/Mail Spools/foo{bar}/Test + 123',
-        'to_string'    => '"/Mail Spools/foo\0173bar\0175/Test \x2b 123"'
+        'to_string'    => '"/Mail Spools/foo{bar}/Test + 123"'
     },
 
     ',' => {
