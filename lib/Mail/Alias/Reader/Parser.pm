@@ -22,15 +22,10 @@ sub _parse_forward_statement {
             push @destinations, $token;
         }
         elsif ( $token->isa('T_COMMA') ) {
-            confess('Unexpected comma') unless $last_token->is_value;
-        }
-        elsif ( $token->isa('T_END') ) {
-            confess('Unexpected end of statement') unless $last_token->is_value;
-
-            last;
+            confess('Unexpected comma') unless $last_token->is_value || $last_token->isa('T_COMMA');
         }
         else {
-            confess("Unexpected $token->{'type'}");
+            confess("Unexpected $token->{'type'}") unless $token->isa('T_END');
         }
 
         $last_token = $token;
@@ -60,10 +55,10 @@ sub _parse_aliases_statement {
             $name = $last_token->{'value'};
         }
         elsif ( $token->isa('T_COMMA') ) {
-            confess('Unexpected comma') unless $last_token->is_value;
+            confess('Unexpected comma') unless $last_token->is_value || $last_token->isa('T_COMMA');
         }
         elsif ( $token->isa('T_END') ) {
-            confess('Unexpected end of aliases statement') unless $last_token->is_value;
+            confess('Unexpected end of aliases statement') unless $last_token->is_value || $last_token->isa('T_COMMA');
 
             last;
         }

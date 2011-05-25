@@ -89,13 +89,13 @@ sub open_reader {
             qr/Too many colons/, "Mail::Alias::Reader::Parser is intolerant of multiple colons";
         },
 
-        'this,,should,,not,,work' => sub {
+        'this: should,,work' => sub {
             my ($reader) = @_;
 
-            throws_ok {
+            lives_ok {
                 $reader->read;
             }
-            qr/Unexpected comma/, "Mail::Alias::Reader::Parser is intolerant of misplaced commas";
+            "Mail::Alias::Reader::Parser is tolerant of consecutive commas in aliases(5) statement";
         },
 
         'this, should, fail:' => sub {
@@ -105,6 +105,24 @@ sub open_reader {
                 $reader->read;
             }
             qr/Unexpected end of alias/, "Mail::Alias::Reader::Parser wants a value at the end of statement";
+        },
+
+        'this: , should, fail' => sub {
+            my ($reader) = @_;
+
+            throws_ok {
+                $reader->read;
+            }
+            qr/Unexpected comma/, "Mail::Alias::Reader::Parser does not tolerate commas after name:";
+        },
+
+        'this: should, pass,' => sub {
+            my ($reader) = @_;
+
+            lives_ok {
+                $reader->read;
+            }
+            "Mail::Alias::Reader::Parser tolerates aliases(5) statements ending with commas";
         },
     );
 
@@ -152,22 +170,31 @@ sub open_reader {
             qr/Unexpected value/, "Values in 'forward' mode not separate by commas are illegal";
         },
 
-        'foo,,' => sub {
+        'foo,,bar' => sub {
             my ($reader) = @_;
 
-            throws_ok {
+            lives_ok {
                 $reader->read;
             }
-            qr/Unexpected comma/, "Multiple sequential comments in 'forward' mode are illegal";
+            "Consecutive commas in 'forward' mode are illegal";
         },
 
         'foo,' => sub {
             my ($reader) = @_;
 
+            lives_ok {
+                $reader->read;
+            }
+            "Comma at end of statement in 'forward' mode is tolerated";
+        },
+
+        ',' => sub {
+            my ($reader) = @_;
+
             throws_ok {
                 $reader->read;
             }
-            qr/Unexpected end of statement/, "Comma at end of statement in 'forward' mode is illegal";
+            qr/Unexpected comma/, "Commas outside the context of destinations are illegal";
         },
     );
 
