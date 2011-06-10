@@ -10,7 +10,7 @@ use Mail::Alias::Reader         ();
 use Mail::Alias::Reader::Token  ();
 use Mail::Alias::Reader::Parser ();
 
-use Test::More ( 'tests' => 15 );
+use Test::More ( 'tests' => 18 );
 use Test::Exception;
 
 sub open_reader {
