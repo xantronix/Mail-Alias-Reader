@@ -1,3 +1,10 @@
+# Copyright (c) 2012, cPanel, Inc.
+# All rights reserved.
+# http://cpanel.net/
+#
+# This is free software; you can redistribute it and/or modify it under the same
+# terms as Perl itself.  See the LICENSE file for further details.
+
 package Mail::Alias::Reader::Parser;
 
 use strict;
@@ -93,4 +100,9 @@ __END__
 
 =head1 COPYRIGHT
 
-Copyright(c) 2011 cPanel, Inc.  All rights reserved.
+Copyright (c) 2012, cPanel, Inc.
+All rights reserved.
+http://cpanel.net/
+
+This is free software; you can redistribute it and/or modify it under the same
+terms as Perl itself.  See the LICENSE file for further details.

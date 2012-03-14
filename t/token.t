@@ -1,14 +1,16 @@
+# Copyright (c) 2012, cPanel, Inc.
+# All rights reserved.
+# http://cpanel.net/
 #
-# Mail::Alias::Reader                             Copyright(c) 2011 cPanel, Inc.
-#                                                           All rights Reserved.
-# copyright@cpanel.net                                         http://cpanel.net
-#
+# This is free software; you can redistribute it and/or modify it under the same
+# terms as Perl itself.  See the LICENSE file for further details.
+
 use strict;
 use warnings;
 
-use Test::More ('no_plan');
+use Test::More ( 'tests' => 69 );
 
-use Mail::Alias::Reader::Token ( 'tests' => 69 );
+use Mail::Alias::Reader::Token ();
 
 my %TESTS = (
     '#foo' => {
