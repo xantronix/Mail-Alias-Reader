@@ -121,3 +121,6 @@ ERROR HANDLING
 AUTHOR
     Written and maintained by Erin Schoenhals <erin@cpanel.net>.
 
+COPYRIGHT AND LICENSE
+    This software is released under the same license as Perl itself.  Please see
+    the COPYRIGHT and LICENSE files for further details.
