@@ -18,7 +18,7 @@ BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
-    $VERSION = '0.05';
+    $VERSION = '0.06';
     @ISA     = qw(Exporter);
 
     @EXPORT      = ();
@@ -195,7 +195,8 @@ prefix; this is implied in the destination token type, rather.
 Only appears in the prsence of a token typed I<T_DIRECTIVE>  When a mail alias
 destination in the form of C<:directive:I<argument>> is parsed, this contains
 the name of the 'C<directive>' portion.  Of course, the value in the
-'I<argument>' portion is contained in the token's C<value> field.
+'I<argument>' portion is contained in the token's C<value> field, but is
+considered optional, especially in the presence of a directive such as C<:fail>.
 
 =back
 

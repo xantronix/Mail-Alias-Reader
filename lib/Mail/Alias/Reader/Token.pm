@@ -30,7 +30,7 @@ my @TOKEN_TYPES = (
     [ 'T_COMMENT'    => qr/#\s*(.*)$/ ],
     [ 'T_STRING'     => qr/("(?:\\.|[^"\\]+)*")/ ],
     [ 'T_COMMA'      => qr/,/ ],
-    [ 'T_DIRECTIVE'  => qr/:([^\:\s]+):([^\:\s,]+)/ ],
+    [ 'T_DIRECTIVE'  => qr/:([^\:\s]+):([^\:\s,]*)/ ],
     [ 'T_COMMAND'    => qr/\|(\S+)/ ],
     [ 'T_ADDRESS'    => qr/([a-z0-9_\-@\.*]+)/i ],
     [ 'T_COLON'      => qr/\:/ ],
@@ -186,7 +186,7 @@ sub to_string {
     my $value = $self->{'value'};
 
     if ($value) {
-        foreach my $search (keys %SUBSTITUTIONS) {
+        foreach my $search ( keys %SUBSTITUTIONS ) {
             $value =~ s/$search/$SUBSTITUTIONS{$search}/g;
         }
     }
@@ -335,7 +335,7 @@ sub tokenize {
             # contents, copying the data directly into the existing token (so as to
             # not lose the previous reference).
             #
-            %{$token} = %{$class->tokenize_for_types( $token->{'value'}, @TOKEN_STRING_TYPES )->[0]};
+            %{$token} = %{ $class->tokenize_for_types( $token->{'value'}, @TOKEN_STRING_TYPES )->[0] };
         }
     }
 

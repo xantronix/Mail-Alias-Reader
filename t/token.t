@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More ( 'tests' => 69 );
+use Test::More ( 'tests' => 77 );
 
 use Mail::Alias::Reader::Token ();
 
@@ -64,6 +64,17 @@ my %TESTS = (
         'is_file'      => 0,
         'to_string'    => ' '
     },
+
+    ':fail:' => {
+        'is_value'     => 1,
+        'is_punct'     => 0,
+        'is_address'   => 0,
+        'is_directive' => 1,
+        'is_command'   => 0,
+        'is_file'      => 0,
+        'to_string'    => ':fail:',
+        'value'        => ''
+      },
 
     ':test:/value' => {
         'is_value'     => 1,
