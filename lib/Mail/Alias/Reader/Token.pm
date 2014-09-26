@@ -1,4 +1,4 @@
-# Copyright (c) 2012, cPanel, Inc.
+# Copyright (c) 2014, cPanel, Inc.
 # All rights reserved.
 # http://cpanel.net/
 #
@@ -9,8 +9,6 @@ package Mail::Alias::Reader::Token;
 
 use strict;
 use warnings;
-
-use Carp;
 
 =head1 NAME
 
@@ -300,8 +298,8 @@ sub tokenize {
     );
 
     my @STRING_ESCAPE_SEQUENCES = (
-        [ qr/\\(0\d*)/       => sub { pack 'W', oct($1) } ],
-        [ qr/\\(x[0-9a-f]+)/ => sub { pack 'W', hex("0$1") } ],
+        [ qr/\\(0\d*)/       => sub { pack 'C', oct($1) } ],
+        [ qr/\\(x[0-9a-f]+)/ => sub { pack 'C', hex("0$1") } ],
         [ qr/\\([rnt])/      => sub { $WHITESPACE{$1} } ],
         [ qr/\\([^rnt])/     => sub { $1 } ]
     );
@@ -352,11 +350,11 @@ __END__
 
 =head1 AUTHOR
 
-Erin Schoenhals E<lt>erin@cpanel.netE<gt>
+Written and maintained by Xan Tronix <xan@cpan.org>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2012, cPanel, Inc.
+Copyright (c) 2014, cPanel, Inc.
 All rights reserved.
 http://cpanel.net/
 

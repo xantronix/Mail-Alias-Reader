@@ -1,4 +1,4 @@
-# Copyright (c) 2012, cPanel, Inc.
+# Copyright (c) 2014, cPanel, Inc.
 # All rights reserved.
 # http://cpanel.net/
 #
@@ -10,7 +10,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     'NAME'         => 'Mail::Alias::Reader',
     'VERSION_FROM' => 'lib/Mail/Alias/Reader.pm',
-    'AUTHOR'       => 'Erin Schönhals (erin@cpanel.net)',
+    'AUTHOR'       => 'Xan Tronix <xan@cpan.org>',
     'ABSTRACT'     => 'Parse aliases(5) and ~/.forward declarations',
     'PREREQ_PM'    => {
         'Test::More'      => 0,

@@ -1,0 +1,13 @@
+Version 0.07
+
+    * Modify $token->tokenize() to work on Perl 5.8 by replacing usage of 'W'
+      pack() format specifier with 'C'
+
+    * Update module authorship, copyright years, and replace README with file
+      README.md as generated from pod2markdown
+
+    * Remove usage of Carp from Mail::Alias::Reader::Token
+
+    * Prevent a call to Carp->import()
+
+    * Add Changes file

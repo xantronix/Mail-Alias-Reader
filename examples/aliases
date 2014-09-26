@@ -16,9 +16,9 @@ majordomo:	"|/usr/lib/majordomo/wrapper majordomo"
 foolist: "|/usr/lib/majordomo/wrapper resend -l foolist -h cpanelqatesting.net foolist-outgoing"
 foolist-outgoing: :include:/var/lib/majordomo/lists/foolist
 foolist-list: :include:/var/lib/majordomo/lists/foolist
-owner-foolist: erin@cpanel.net
-foolist-owner: erin@cpanel.net
-foolist-approval: erin@cpanel.net
+owner-foolist: xan@cpan.org
+foolist-owner: xan@cpan.org
+foolist-approval: xan@cpan.org
 foolist-request: "|/usr/lib/majordomo/wrapper majordomo -l foolist"
 cat-example: "|/bin/test -v \"one two\""
 *: ":fail: No such person at this address"

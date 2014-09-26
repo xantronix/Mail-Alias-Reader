@@ -1,4 +1,4 @@
-# Copyright (c) 2012, cPanel, Inc.
+# Copyright (c) 2014, cPanel, Inc.
 # All rights reserved.
 # http://cpanel.net/
 #
@@ -12,19 +12,9 @@ use warnings;
 
 use Mail::Alias::Reader::Parser ();
 
-use Carp;
+use Carp ();
 
-BEGIN {
-    use Exporter ();
-    use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-
-    $VERSION = '0.06';
-    @ISA     = qw(Exporter);
-
-    @EXPORT      = ();
-    @EXPORT_OK   = ();
-    %EXPORT_TAGS = ();
-}
+our $VERSION = '0.06';
 
 =head1 NAME
 
@@ -83,18 +73,18 @@ sub open {
     #
     $opts{'mode'} ||= 'aliases';
 
-    confess('Unknown parsing mode') unless $opts{'mode'} =~ /^aliases|forward$/;
+    Carp::confess('Unknown parsing mode') unless $opts{'mode'} =~ /^aliases|forward$/;
 
     my $fh;
 
     if ( defined $opts{'file'} ) {
-        open( $fh, '<', $opts{'file'} ) or confess("Unable to open aliases file $opts{'file'}: $!");
+        open( $fh, '<', $opts{'file'} ) or Carp::confess("Unable to open aliases file $opts{'file'}: $!");
     }
     elsif ( defined $opts{'handle'} ) {
         $fh = $opts{'handle'};
     }
     else {
-        confess('No file or file handle specified');
+        Carp::confess('No file or file handle specified');
     }
 
     return bless {
@@ -248,11 +238,11 @@ during the runtime of this module.
 
 =head1 AUTHOR
 
-Written and maintained by Erin Schoenhals <erin@cpanel.net>.
+Written and maintained by Xan Tronix <xan@cpan.org>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2012, cPanel, Inc.
+Copyright (c) 2014, cPanel, Inc.
 All rights reserved.
 http://cpanel.net/
 
